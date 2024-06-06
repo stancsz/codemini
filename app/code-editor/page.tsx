@@ -5,7 +5,7 @@ const CodeEditorPage: React.FC = () => {
     return (
         <div>
             <h1>Code Editor</h1>
-            <CodeEditor initialCode="// Type your code here" language="javascript" />
+            <CodeEditor language="javascript" />
         </div>
     );
 };
