@@ -34,9 +34,14 @@ const DashboardPage = () => {
   return (
     <div>
       <h1>Dashboard</h1>
+      <div>
+            <h1>Welcome to CodeMini</h1>
+            <p><a href="/code-editor">Go to Code Editor</a></p>
+        </div>
       {user && <p>Welcome, {user.email}</p>}
       <button onClick={handleLogout}>Logout</button>
     </div>
+    
   );
 };
 
