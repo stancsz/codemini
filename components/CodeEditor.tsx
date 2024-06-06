@@ -12,13 +12,16 @@ interface CodeEditorProps {
 const CodeEditor: React.FC<CodeEditorProps> = ({ language = 'javascript' }) => {
   const [code, setCode] = useState('');
   const [fileName, setFileName] = useState<string | null>(null);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<{ file: File, relativePath: string }[]>([]);
   const [filter, setFilter] = useState('');
 
   const handleFolderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
     if (fileList) {
-      const filesArray = Array.from(fileList);
+      const filesArray = Array.from(fileList).map(file => ({
+        file,
+        relativePath: (file as any).webkitRelativePath || file.name
+      }));
       setFiles(filesArray);
     }
   };
@@ -31,7 +34,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = 'javascript' }) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       setCode(e.target?.result as string);
-      setFileName(file.name);
+      setFileName((file as any).webkitRelativePath || file.name);
     };
     reader.readAsText(file);
   };
@@ -41,15 +44,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = 'javascript' }) => {
 
     const suffixes = filter.split(/[,;]/).map(suffix => suffix.trim());
 
-    return files.filter(file => suffixes.some(suffix => file.name.endsWith(suffix)));
+    return files.filter(({ file }) => suffixes.some(suffix => file.name.endsWith(suffix)));
   };
 
   const handleDownload = () => {
     const zip = new JSZip();
     const filteredFiles = getFilteredFiles();
 
-    filteredFiles.forEach(file => {
-      zip.file(file.name, file);
+    filteredFiles.forEach(({ file, relativePath }) => {
+      zip.file(relativePath, file);
     });
 
     zip.generateAsync({ type: 'blob' }).then(content => {
@@ -83,9 +86,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = 'javascript' }) => {
         Opened file: {fileName}
       </div>
       <div>
-        {filteredFiles.map((file, index) => (
+        {filteredFiles.map(({ file, relativePath }, index) => (
           <div key={index} onClick={() => openFile(file)}>
-            {file.name}
+            {relativePath}
           </div>
         ))}
       </div>
