@@ -9,7 +9,7 @@ interface CodeEditorProps {
   language?: string;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ language = 'javascript' }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ language = undefined }) => {
   const [code, setCode] = useState('');
   const [fileName, setFileName] = useState<string | null>(null);
   const [files, setFiles] = useState<{ file: File, relativePath: string }[]>([]);
