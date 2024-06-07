@@ -1,21 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { onAuthStateChanged, signOut } from "firebase/auth"; // Update with your actual import path for Firebase Auth
-import { auth } from "../firebase"; // Update with your actual import path for Firebase Auth
-import "./globals.css";
-import "./layout.css"; // Import the new CSS file
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import './globals.css';
+import './layout.css';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
@@ -47,9 +43,13 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <nav className="nav-bar">
+          <div className="title-container">
+            <img src="/logo.webp" alt="Logo" className="logo" width="60" height="60" />
+            <h1 className="title">CODEMINI</h1>
+          </div>
           <ul className="nav-list">
             <li className="nav-item">
-              <Link href="/" className="nav-link">Home</Link> 
+              <Link href="/" className="nav-link">Home</Link>
             </li>
             {user ? (
               <>
@@ -72,7 +72,6 @@ export default function RootLayout({
             )}
           </ul>
         </nav>
-
         {children}
       </body>
     </html>
