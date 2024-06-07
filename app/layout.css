@@ -1,0 +1,44 @@
+/* layout.css */
+.nav-bar {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+  }
+  
+  .nav-list {
+    display: flex;
+    justify-content: flex-end;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .nav-item {
+    margin-left: 10px;
+  }
+  
+  .nav-link {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 20px;
+    background-color: #0070f3;
+    color: #fff;
+    text-align: center;
+    line-height: normal;
+    transition: background-color 0.3s ease;
+  }
+  
+  .nav-button {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 20px;
+    background-color: #0070f3;
+    color: #fff;
+    text-align: center;
+    line-height: normal;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+  
