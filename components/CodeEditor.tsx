@@ -9,7 +9,7 @@ interface CodeEditorProps {
   language?: string;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ language = undefined }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ language = "python" }) => {
   const [code, setCode] = useState('');
   const [fileName, setFileName] = useState<string | null>(null);
   const [files, setFiles] = useState<{ file: File, relativePath: string }[]>([]);
@@ -66,38 +66,81 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = undefined }) => {
   const filteredFiles = getFilteredFiles();
 
   return (
-    <div>
-      <input
-        type="file"
-        // @ts-ignore
-        webkitdirectory="true"
-        // @ts-ignore
-        mozdirectory="true"
-        onChange={handleFolderChange}
-      />
-      <input
-        type="text"
-        placeholder="Filter by suffix (e.g., .js,.ts)"
-        value={filter}
-        onChange={handleFilterChange}
-      />
-      <button onClick={handleDownload}>Download All</button>
-      <div>
-        Opened file: {fileName}
-      </div>
-      <div>
-        {filteredFiles.map(({ file, relativePath }, index) => (
-          <div key={index} onClick={() => openFile(file)}>
-            {relativePath}
+    <div style={{ display: 'flex', height: '100vh' }}>
+      <div style={{ width: '250px', padding: '10px', borderRight: '1px solid #ccc' }}>
+        <label style={{ display: 'block', marginBottom: '10px' }}>
+          <input
+            type="file"
+            // @ts-ignore
+            webkitdirectory="true"
+            // @ts-ignore
+            mozdirectory="true"
+            onChange={handleFolderChange}
+            style={{ display: 'none' }}
+          />
+          <span 
+            style={{ 
+              display: 'inline-block', 
+              width: '100%', 
+              backgroundColor: 'black', 
+              color: 'white', 
+              padding: '10px', 
+              textAlign: 'center',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseOver={e => e.currentTarget.style.backgroundColor = 'darkgray'}
+            onMouseOut={e => e.currentTarget.style.backgroundColor = 'black'}
+          >
+            Upload Folder
+          </span>
+        </label>
+        <input
+          type="text"
+          placeholder="Filter by suffix (e.g., .js,.ts)"
+          value={filter}
+          onChange={handleFilterChange}
+          style={{ display: 'block', marginBottom: '10px' }}
+        />
+        <button
+          onClick={handleDownload}
+          style={{ 
+            display: 'block', 
+            width: '100%', 
+            backgroundColor: 'black', 
+            color: 'white', 
+            padding: '10px',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+          onMouseOver={e => e.currentTarget.style.backgroundColor = 'darkgray'}
+          onMouseOut={e => e.currentTarget.style.backgroundColor = 'black'}
+        >
+          Download All
+        </button>
+        <div style={{ marginTop: '20px' }}>
+          <div>Opened file: {fileName}</div>
+          <div>
+            {filteredFiles.map(({ file, relativePath }, index) => (
+              <div 
+                key={index} 
+                onClick={() => openFile(file)}
+                style={{ cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
+              >
+                {relativePath}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
-      <Editor
-        height="90vh"
-        language={language}
-        value={code}
-        onChange={(newValue) => setCode(newValue || '')}
-      />
+      <div style={{ flexGrow: 1 }}>
+        <Editor
+          height="100vh"
+          language={language}
+          value={code}
+          onChange={(newValue) => setCode(newValue || '')}
+        />
+      </div>
     </div>
   );
 };
