@@ -1,5 +1,4 @@
-// CodeEditor.tsx
-"use client"; // This line should only be added for client-side components in Next.js
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
