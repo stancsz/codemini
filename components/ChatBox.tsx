@@ -6,16 +6,29 @@ interface ChatBoxProps {
 
 const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
   const [message, setMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState<{ filename: string; code: string }[]>([]);
 
   const handleSendMessage = () => {
     if (message.trim() !== '') {
       console.log('Message sent:', message);
+      setChatMessages([...chatMessages, ...files]); // Adds the files to the chatMessages array
       setMessage('');
     }
   };
 
   return (
-    <div style={{ flexShrink: 0, padding: '16px', border: '1px solid #ccc' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'flex-end', border: '1px solid #ccc' }}>
+      {/* Display Chat Messages */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+        {chatMessages.map((file, index) => (
+          <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
+            <strong>{file.filename}:</strong>
+            <pre>{file.code}</pre>
+          </div>
+        ))}
+      </div>
+      
+      {/* Input form */}
       <div className="flex items-end gap-1.5 md:gap-2 p-4 border rounded-lg">
         <div className="flex flex-col">
           <input type="file" className="hidden" />
@@ -53,6 +66,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
           </svg>
         </button>
       </div>
+      
       <div>
         <h3>Filtered Files:</h3>
         <ul>
