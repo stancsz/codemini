@@ -1,11 +1,16 @@
 import React from 'react';
 import CodeEditor from '../../components/CodeEditor';
+import ChatBox from '../../components/ChatBox';
 
 const CodeEditorPage: React.FC = () => {
     return (
-        <div>
-            <h1>Code Editor</h1>
-            <CodeEditor/>
+        <div style={{ display: 'flex', height: '100vh' }}>
+            <div style={{ flex: 1, overflow: 'auto' }}>
+                <CodeEditor />
+            </div>
+            <div style={{ width: '40%', overflow: 'auto' }}>
+                <ChatBox />
+            </div>
         </div>
     );
 };
