@@ -1,14 +1,11 @@
-// ChatBox.tsx
 import React, { useState } from 'react';
 
 interface ChatBoxProps {
   files: { filename: string; code: string }[];
-  onFilterChange: (filter: string) => void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilterChange }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
   const [message, setMessage] = useState('');
-  const [filter, setFilter] = useState('');
 
   const handleSendMessage = () => {
     if (message.trim() !== '') {
@@ -17,22 +14,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilterChange }) => {
     }
   };
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFilter = e.target.value;
-    setFilter(newFilter);
-    onFilterChange(newFilter);
-  };
-
   return (
     <div style={{ flexShrink: 0, padding: '16px', border: '1px solid #ccc' }}>
-      <div>
-        <input
-          type="text"
-          placeholder="Filter files"
-          value={filter}
-          onChange={handleFilterChange}
-        />
-      </div>
       <div className="flex items-end gap-1.5 md:gap-2 p-4 border rounded-lg">
         <div className="flex flex-col">
           <input type="file" className="hidden" />

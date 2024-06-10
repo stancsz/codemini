@@ -5,13 +5,15 @@ import Editor from '@monaco-editor/react';
 import JSZip from 'jszip';
 
 interface CodeEditorProps {
-  files: { filename: string; code: string }[];
-  onFileChange: (filename: string, code: string) => void;
+  language?: string;
+  onFilteredFilesChange: (filteredFiles: { filename: string; code: string }[]) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFileChange }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilteredFilesChange }) => {
   const [code, setCode] = useState('');
   const [fileName, setFileName] = useState<string | null>(null);
+  const [files, setFiles] = useState<{ filename: string; code: string }[]>([]);
+  const [filter, setFilter] = useState('');
 
   const handleFolderChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
@@ -25,11 +27,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFileChange }) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           const content = e.target?.result as string;
-          onFileChange(fileObj.relativePath, content);
+          setFiles((prevFiles) => [...prevFiles, { filename: fileObj.relativePath, code: content }]);
         };
         reader.readAsText(fileObj.file);
       }
     }
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFilter = e.target.value;
+    setFilter(newFilter);
   };
 
   const openFile = (file: { filename: string; code: string }) => {
@@ -40,7 +47,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFileChange }) => {
   const handleDownload = () => {
     const zip = new JSZip();
 
-    files.forEach(({ filename, code }) => {
+    const filteredFiles = getFilteredFiles();
+    filteredFiles.forEach(({ filename, code }) => {
       zip.file(filename, code);
     });
 
@@ -52,14 +60,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFileChange }) => {
     });
   };
 
+  const getFilteredFiles = () => {
+    if (!filter) return files;
+    return files.filter(file => file.filename.includes(filter));
+  };
+
+  const filteredFiles = getFilteredFiles();
+
   useEffect(() => {
-    if (files.length > 0 && fileName) {
-      const file = files.find(file => file.filename === fileName);
-      if (file) {
-        setCode(file.code);
-      }
-    }
-  }, [files, fileName]);
+    onFilteredFilesChange(filteredFiles);
+  }, [filteredFiles]);
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -91,6 +101,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFileChange }) => {
             Upload Folder
           </span>
         </label>
+        <input
+          type="text"
+          placeholder="Filter files"
+          value={filter}
+          onChange={handleFilterChange}
+        />
         <button
           onClick={handleDownload}
           style={{
@@ -110,7 +126,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFileChange }) => {
         <div style={{ marginTop: '20px' }}>
           <div>Opened file: {fileName}</div>
           <div>
-            {files.map((file, index) => (
+            {filteredFiles.map((file, index) => (
               <div
                 key={index}
                 onClick={() => openFile(file)}
@@ -125,12 +141,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFileChange }) => {
       <div style={{ flexGrow: 1 }}>
         <Editor
           height="100vh"
-          language="javascript"  // Replace with your desired language
+          language={language}
           value={code}
           onChange={(newValue) => {
             setCode(newValue || '');
             if (fileName) {
-              onFileChange(fileName, newValue || '');
+              setFiles((prevFiles) =>
+                prevFiles.map(file =>
+                  file.filename === fileName ? { ...file, code: newValue || '' } : file
+                )
+              );
             }
           }}
         />
