@@ -15,11 +15,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
     }
 
     // Add user message to chat
-    const newChatMessages = [...chatMessages, { role: 'user', content: message }];
+    const codeFiles = files.map(file => `Filename: ${file.filename}\nCode:\n${file.code}`).join('\n\n');
+    const fullMessage = `${message}\n\nFiles:\n${codeFiles}`;
+    const newChatMessages = [...chatMessages, { role: 'user', content: fullMessage }];
     setChatMessages(newChatMessages);
 
     try {
-      const response = await axios.post('/api/sendMessage', { message });
+      const response = await axios.post('/api/sendMessage', { message: fullMessage });
       const chatGPTResponse = response.data.response;
 
       // Add ChatGPT response to chat
