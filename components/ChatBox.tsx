@@ -36,7 +36,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {chatMessages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
-            <strong>{msg.role === 'user' ? 'You' : '🐰Mini'}:</strong>
+            <strong>{msg.role === 'user' ? 'You' : '🐣Mini'}:</strong>
             <pre>{msg.content}</pre>
           </div>
         ))}

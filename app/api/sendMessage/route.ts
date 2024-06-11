@@ -10,8 +10,9 @@ export async function POST(req: NextRequest) {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
+      response_format: { "type": "json_object" },
       messages: [
-        { role: 'system', content: 'repeat the uses message in json format' },
+        { role: 'system', content: 'Produce JSON. Edit the files based on user prompts, only return the files you have modified. in the format of: [{filepath:"", code:""}, {filepath:"", code:""}...]'},
         { role: 'user', content: message }
       ],
       temperature: 1,
