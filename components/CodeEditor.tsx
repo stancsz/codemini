@@ -36,7 +36,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
     }, [filteredFiles]);
 
     return (
-        <div style={{ display: 'flex', height: '100vh' }}>
+        <div style={{ display: 'flex', flex: 1 }}>
             <div style={{ width: '250px', padding: '10px', borderRight: '1px solid #ccc' }}>
                 <UploadDownload onFilesUpload={setFiles} getFilteredFiles={getFilteredFiles} />
                 <input

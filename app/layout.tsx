@@ -72,7 +72,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             )}
           </ul>
         </nav>
-        {children}
+        <div style={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+          {children}
+        </div>
       </body>
     </html>
   );

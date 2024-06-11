@@ -32,7 +32,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'flex-end', border: '1px solid #ccc' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'flex-end', border: '1px solid #ccc' }}>
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {chatMessages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
@@ -41,8 +41,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
           </div>
         ))}
       </div>
-          
-      <div className="flex items-end gap-1.5 md:gap-2 p-4 border rounded-lg">
+
+      <div style={{ display: 'flex', alignItems: 'center', padding: '16px', borderTop: '1px solid #ccc' }}>
         <textarea
           id="prompt-textarea"
           rows={1}
