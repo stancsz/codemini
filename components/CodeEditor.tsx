@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Editor from '@monaco-editor/react';
 import UploadDownload from './UploadDownload';
 
-interface CodeEditorProps { language?: string; onFilteredFilesChange: (filteredFiles: { filename: string; code: string }[]) => void; }
+interface CodeEditorProps {
+    language?: string;
+    onFilteredFilesChange: (filteredFiles: { filename: string; code: string }[]) => void;
+}
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilteredFilesChange }) => {
     const [code, setCode] = useState('');
@@ -12,28 +15,27 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
     const [files, setFiles] = useState<{ filename: string; code: string }[]>([]);
     const [filter, setFilter] = useState('');
 
-    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newFilter = e.target.value;
-        setFilter(newFilter);
-    };
+    const handleFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setFilter(e.target.value);
+    }, []);
 
-    const openFile = (file: { filename: string; code: string }) => {
+    const openFile = useCallback((file: { filename: string; code: string }) => {
         setCode(file.code);
         setFileName(file.filename);
-    };
+    }, []);
 
-    const getFilteredFiles = () => {
+    const getFilteredFiles = useCallback(() => {
         if (!filter) return files;
 
         const suffixes = filter.split(/[,;]/).map(suffix => suffix.trim());
         return files.filter(file => suffixes.some(suffix => file.filename.endsWith(suffix)));
-    };
+    }, [filter, files]);
 
-    const filteredFiles = getFilteredFiles();
+    const filteredFiles = useMemo(getFilteredFiles, [getFilteredFiles]);
 
     useEffect(() => {
         onFilteredFilesChange(filteredFiles);
-    }, [filteredFiles]);
+    }, [filteredFiles, onFilteredFilesChange]);
 
     return (
         <div style={{ display: 'flex', flex: 1 }}>
@@ -67,7 +69,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
                     language={language}
                     value={code}
                     onChange={(newValue) => {
-                        setCode(newValue || '');
                         if (fileName) {
                             setFiles((prevFiles) =>
                                 prevFiles.map(file =>
@@ -75,6 +76,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
                                 )
                             );
                         }
+                        setCode(newValue || '');
                     }}
                 />
             </div>

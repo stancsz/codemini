@@ -42,7 +42,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'flex-end', border: '1px solid #ccc', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'flex-end', border: '1px solid #ccc', height: '100vh' }}>
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {chatMessages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', wordWrap: 'break-word' }}>
