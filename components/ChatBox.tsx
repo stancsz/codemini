@@ -27,7 +27,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
 
       // Add ChatGPT response to chat
       setChatMessages([...newChatMessages, { role: 'assistant', content: chatGPTResponse }]);
-      // setChatMessages([...newChatMessages, { role: 'assistant', content: chatGPTResponse.message }]);
 
       // Update files based on ChatGPT response
       const updatedFiles = chatGPTResponse.files;
@@ -42,7 +41,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'flex-end', border: '1px solid #ccc', height: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', border: '1px solid #ccc', height: 'calc(100vh - 10vh)', width: '30vw' }}>
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {chatMessages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', wordWrap: 'break-word' }}>

@@ -18,13 +18,13 @@ const CodeEditorPage: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 10vh)' }}>
       <h1>Code Editor</h1>
       <div style={{ display: 'flex', flex: 1 }}>
-        <div style={{ flex: 1, overflow: 'auto' }}>
+        <div>
           <CodeEditor onFilteredFilesChange={setFilteredFiles} />
         </div>
-        <div style={{ width: '40%', overflow: 'auto' }}>
+        <div>
           <ChatBox files={filteredFiles} onFilesUpdate={handleFilesUpdate} />
         </div>
       </div>

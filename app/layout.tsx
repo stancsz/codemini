@@ -41,7 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         {/* Include metadata tags */}
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} style={{ height: 'calc(100vh - 10vh)'}}>
         <nav className="nav-bar">
           <div className="title-container">
             <img src="/logo.webp" alt="Logo" className="logo" width="60" height="60" />

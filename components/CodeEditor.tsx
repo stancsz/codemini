@@ -38,8 +38,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
     }, [filteredFiles, onFilteredFilesChange]);
 
     return (
-        <div style={{ display: 'flex', flex: 1 }}>
-            <div style={{ width: '250px', padding: '10px', borderRight: '1px solid #ccc' }}>
+        <div style={{ display: 'flex', flex: 1, width: '70vw'}}>
+            <div style={{ padding: '10px', borderRight: '1px solid #ccc', height: 'calc(100vh - 10vh)' }}>
                 <UploadDownload onFilesUpload={setFiles} getFilteredFiles={getFilteredFiles} />
                 <input
                     type="text"
@@ -65,7 +65,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
             </div>
             <div style={{ flexGrow: 1 }}>
                 <Editor
-                    height="90vh"
+                    height="100%"
                     language={language}
                     value={code}
                     onChange={(newValue) => {
