@@ -3,9 +3,10 @@ import axios from 'axios';
 
 interface ChatBoxProps {
   files: { filename: string; code: string }[];
+  onFilesUpdate: (updatedFiles: { filename: string; code: string }[]) => void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([]);
 
@@ -26,6 +27,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
 
       // Add ChatGPT response to chat
       setChatMessages([...newChatMessages, { role: 'assistant', content: chatGPTResponse }]);
+      // setChatMessages([...newChatMessages, { role: 'assistant', content: chatGPTResponse.message }]);
+
+      // Update files based on ChatGPT response
+      const updatedFiles = chatGPTResponse.files;
+      if (updatedFiles) {
+        onFilesUpdate(updatedFiles);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -57,7 +65,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
         <button
           onClick={handleSendMessage}
           disabled={message.trim() === ''}
-          style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'black', color: 'white', borderRadius: '4px' }}
+          style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'black', color: 'white', borderRadius: '4px'}}
         >
           Send
         </button>

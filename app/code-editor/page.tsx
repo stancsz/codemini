@@ -6,6 +6,17 @@ import ChatBox from '../../components/ChatBox';
 const CodeEditorPage: React.FC = () => {
   const [filteredFiles, setFilteredFiles] = useState<{ filename: string; code: string }[]>([]);
 
+  const handleFilesUpdate = (updatedFiles: { filename: string; code: string }[]) => {
+    setFilteredFiles(prevFiles => {
+      const updatedFilesMap = Object.fromEntries(updatedFiles.map(file => [file.filename, file.code]));
+      return prevFiles.map(file =>
+        updatedFilesMap[file.filename]
+          ? { ...file, code: updatedFilesMap[file.filename] }
+          : file
+      );
+    });
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <h1>Code Editor</h1>
@@ -14,7 +25,7 @@ const CodeEditorPage: React.FC = () => {
           <CodeEditor onFilteredFilesChange={setFilteredFiles} />
         </div>
         <div style={{ width: '40%', overflow: 'auto' }}>
-          <ChatBox files={filteredFiles} />
+          <ChatBox files={filteredFiles} onFilesUpdate={handleFilesUpdate} />
         </div>
       </div>
     </div>
