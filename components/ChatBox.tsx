@@ -1,4 +1,6 @@
+// components/ChatBox.tsx
 import React, { useState } from 'react';
+import axios from 'axios';
 
 interface ChatBoxProps {
   files: { filename: string; code: string }[];
@@ -6,29 +8,45 @@ interface ChatBoxProps {
 
 const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
   const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState<{ filename: string; code: string }[]>([]);
+  const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([]);
 
-  const handleSendMessage = () => {
-    if (message.trim() !== '') {
-      console.log('Message sent:', message);
-      setChatMessages([...chatMessages, ...files]); // Adds the files to the chatMessages array
-      setMessage('');
+  const handleSendMessage = async () => {
+    if (message.trim() === '') {
+      return;
     }
+
+    // Add user message to chat
+    setChatMessages([...chatMessages, { role: 'user', content: message }]);
+    
+    try {
+      const response = await axios.post('/api/sendMessage', { message });
+      const chatGPTResponse = response.data.response;
+      
+      // Add ChatGPT response to chat
+      setChatMessages(prevMessages => [
+        ...prevMessages,
+        { role: 'user', content: message },
+        { role: 'assistant', content: chatGPTResponse }
+      ]);
+    
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+
+    setMessage('');
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'flex-end', border: '1px solid #ccc' }}>
-      {/* Display Chat Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-        {chatMessages.map((file, index) => (
+        {chatMessages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
-            <strong>{file.filename}:</strong>
-            <pre>{file.code}</pre>
+            <strong>{msg.role === 'user' ? 'You' : 'ChatGPT'}:</strong>
+            <pre>{msg.content}</pre>
           </div>
         ))}
       </div>
       
-      {/* Input form */}
       <div className="flex items-end gap-1.5 md:gap-2 p-4 border rounded-lg">
         <div className="flex flex-col">
           <input type="file" className="hidden" />
