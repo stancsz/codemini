@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       model: "gpt-3.5-turbo",
       response_format: { "type": "json_object" },
       messages: [
-        { role: 'system', content: 'Produce JSON. Add, or edit the files (default python) based on user prompts, only return the files you have modified. in the format of: {"response": [{"filename": "filepath1", "code": "code1"},{"filename": "filepath2", "code": "code2"}]}'},
+        { role: 'system', content: 'Produce JSON. Add, or edit the files (default python) based on user prompts, only return the files you have modified. in the format of: {"message":"your message","files": [{"filename": "filepath1", "code": "code1"},{"filename": "filepath2", "code": "code2"}]}'},
         { role: 'user', content: message }
       ],
       temperature: 1,
