@@ -63,7 +63,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
             </div>
             <div style={{ flexGrow: 1 }}>
                 <Editor
-                    height="100vh"
+                    height="90vh"
                     language={language}
                     value={code}
                     onChange={(newValue) => {

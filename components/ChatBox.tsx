@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-interface ChatBoxProps { 
+interface ChatBoxProps {
   files: { filename: string; code: string }[];
 }
 
@@ -19,7 +19,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
     setChatMessages(newChatMessages);
 
     try {
-      const response = await axios.post('/api/sendMessage', { message }); 
+      const response = await axios.post('/api/sendMessage', { message });
       const chatGPTResponse = response.data.response;
 
       // Add ChatGPT response to chat
@@ -32,12 +32,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'flex-end', border: '1px solid #ccc' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'flex-end', border: '1px solid #ccc', height: '100%' }}>
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {chatMessages.map((msg, index) => (
-          <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
+          <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', wordWrap: 'break-word' }}>
             <strong>{msg.role === 'user' ? 'You' : '🐣Mini'}:</strong>
-            <pre>{msg.content}</pre>
+            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{msg.content}</pre>
           </div>
         ))}
       </div>
@@ -50,7 +50,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files }) => {
           className="resize-none bg-transparent w-full"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          style={{ border: '1px solid #ccc', borderRadius: '4px', padding: '8px' }}
+          style={{ border: '1px solid #ccc', borderRadius: '4px', padding: '8px', flex: 1 }}
         />
         <button
           onClick={handleSendMessage}
