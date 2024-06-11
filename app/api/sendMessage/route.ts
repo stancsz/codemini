@@ -1,16 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server'; // Use next/server imports
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, 
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(req: NextRequest) {  // Use NextRequest from next/server
+export async function POST(req: NextRequest) {
   const { message } = await req.json();
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [{ role: 'user', content: message }],
+      messages: [
+        { role: 'system', content: 'repeat the uses message in json format' },
+        { role: 'user', content: message }
+      ],
       temperature: 1,
       max_tokens: 256,
       top_p: 1,
