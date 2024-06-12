@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const { message } = await req.json();
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       response_format: { "type": "json_object" },
       messages: [
         { role: 'system', content: 'Produce JSON. Add, or edit the files (default python) based on user prompts, only return the files you have modified. in the format of: {"message":"your message","files": [{"filename": "filepath1", "code": "code1"},{"filename": "filepath2", "code": "code2"}]}'},
