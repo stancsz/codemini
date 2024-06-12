@@ -5,19 +5,20 @@ import Editor from '@monaco-editor/react';
 import UploadDownload from './UploadDownload';
 
 interface CodeEditorProps {
-    language?: string;
-    onFilteredFilesChange: (filteredFiles: { filename: string; code: string }[]) => void;
+    files: { filename: string; code: string }[];
+    filter: string;
+    onFilesChange: (files: { filename: string; code: string }[]) => void;
+    onFilterChange: (filter: string) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilteredFilesChange }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ files, filter, onFilesChange, onFilterChange }) => {
+    const [language, setLanguage] = useState('javascript');
     const [code, setCode] = useState('');
     const [fileName, setFileName] = useState<string | null>(null);
-    const [files, setFiles] = useState<{ filename: string; code: string }[]>([]);
-    const [filter, setFilter] = useState('');
 
     const handleFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setFilter(e.target.value);
-    }, []);
+        onFilterChange(e.target.value);
+    }, [onFilterChange]);
 
     const openFile = useCallback((file: { filename: string; code: string }) => {
         setCode(file.code);
@@ -33,14 +34,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
 
     const filteredFiles = useMemo(getFilteredFiles, [getFilteredFiles]);
 
-    useEffect(() => {
-        onFilteredFilesChange(filteredFiles);
-    }, [filteredFiles, onFilteredFilesChange]);
-
     return (
         <div style={{ display: 'flex', flex: 1, width: '70vw'}}>
             <div style={{ padding: '10px', borderRight: '1px solid #ccc', height: 'calc(100vh - 10vh)' }}>
-                <UploadDownload onFilesUpload={setFiles} getFilteredFiles={getFilteredFiles} />
+                <UploadDownload onFilesUpload={onFilesChange} getFilteredFiles={getFilteredFiles} />
                 <input
                     type="text"
                     placeholder="Filter by suffix (e.g., .js,.ts)"
@@ -70,11 +67,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ language = "javascript", onFilt
                     value={code}
                     onChange={(newValue) => {
                         if (fileName) {
-                            setFiles((prevFiles) =>
-                                prevFiles.map(file =>
-                                    file.filename === fileName ? { ...file, code: newValue || '' } : file
-                                )
+                            const updatedFiles = files.map(file =>
+                                file.filename === fileName ? { ...file, code: newValue || '' } : file
                             );
+                            onFilesChange(updatedFiles);
                         }
                         setCode(newValue || '');
                     }}
