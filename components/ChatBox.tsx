@@ -23,15 +23,22 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
 
     try {
       const response = await axios.post('/api/sendMessage', { message: fullMessage });
-      const chatGPTResponse = response.data.response;
+      const chatGPTResponse = JSON.parse(response.data.response); // Parse the response as JSON
 
-      // Add ChatGPT response to chat
-      setChatMessages([...newChatMessages, { role: 'assistant', content: chatGPTResponse }]);
+      if (chatGPTResponse) {
+        // Add ChatGPT response to chat
+        setChatMessages((prevChatMessages) => [
+          ...prevChatMessages,
+          { role: 'assistant', content: chatGPTResponse.message}
+        ]);
 
-      // Update files based on ChatGPT response
-      const updatedFiles = chatGPTResponse.files;
-      if (updatedFiles) {
-        onFilesUpdate(updatedFiles);
+        // Update files based on ChatGPT response
+        const updatedFiles = chatGPTResponse.files;
+        if (updatedFiles) {
+          onFilesUpdate(updatedFiles);
+        }
+      } else {
+        console.error('No response from ChatGPT');
       }
     } catch (error) {
       console.error('Error sending message:', error);
