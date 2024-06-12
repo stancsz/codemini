@@ -18,7 +18,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     // Add user message to chat
     const codeFiles = files.map(file => `# Filename: ${file.filename}\n# Code:\n${file.code}`).join('\n\n');
     const fullMessage = `${message}\n\nFiles:\n${codeFiles}`;
-    const newChatMessages = [...chatMessages, { role: 'user', content: fullMessage }];
+    const newChatMessages = [...chatMessages, { role: 'user', content: message }];
     setChatMessages(newChatMessages);
 
     try {
@@ -30,7 +30,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
         setChatMessages((prevChatMessages) => [
           ...prevChatMessages,
           { role: 'assistant', content: chatGPTResponse.message },
-          ...chatGPTResponse.files.map((file: { filename: any; code: any; }) => ({ role: 'assistant', content: `# Filename: ${file.filename}\n# Code:\n${file.code}` })) // debug
+          // ...chatGPTResponse.files.map((file: { filename: any; code: any; }) => ({ role: 'assistant', content: `# Filename: ${file.filename}\n# Code:\n${file.code}` })) // debug
         ]); 
 
         // Update files based on ChatGPT response
