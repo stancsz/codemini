@@ -1,83 +1,89 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import UploadDownload from './UploadDownload';
 
 interface CodeEditorProps {
-    files: { filename: string; code: string }[];
-    filter: string;
-    onFilesChange: (files: { filename: string; code: string }[]) => void;
-    onFilterChange: (filter: string) => void;
+  files: { filename: string; code: string }[];
+  onFilesUpdate: (updatedFiles: { filename: string; code: string }[]) => void;
+  filter: string;
+  onFilterChange: (filter: string) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ files, filter, onFilesChange, onFilterChange }) => {
-    const [language, setLanguage] = useState('javascript');
-    const [code, setCode] = useState('');
-    const [fileName, setFileName] = useState<string | null>(null);
+const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, onFilterChange }) => {
+  const [code, setCode] = useState('');
+  const [fileName, setFileName] = useState<string | null>(null);
 
-    const handleFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        onFilterChange(e.target.value);
-    }, [onFilterChange]);
+  const openFile = useCallback((file: { filename: string; code: string }) => {
+    setCode(file.code);
+    setFileName(file.filename);
+  }, []);
 
-    const openFile = useCallback((file: { filename: string; code: string }) => {
-        setCode(file.code);
-        setFileName(file.filename);
-    }, []);
+  const getFilteredFiles = useCallback(() => {
+    if (!filter) return files;
 
-    const getFilteredFiles = useCallback(() => {
-        if (!filter) return files;
+    const suffixes = filter.split(/[,;]/).map(suffix => suffix.trim());
+    return files.filter(file => suffixes.some(suffix => file.filename.endsWith(suffix)));
+  }, [filter, files]);
 
-        const suffixes = filter.split(/[,;]/).map(suffix => suffix.trim());
-        return files.filter(file => suffixes.some(suffix => file.filename.endsWith(suffix)));
-    }, [filter, files]);
+  const filteredFiles = useMemo(getFilteredFiles, [getFilteredFiles]);
 
-    const filteredFiles = useMemo(getFilteredFiles, [getFilteredFiles]);
+  useEffect(() => {
+    if (fileName) {
+      const currentFile = files.find(file => file.filename === fileName);
+      if (currentFile) {
+        setCode(currentFile.code);
+      }
+    }
+  }, [files, fileName]);
 
-    return (
-        <div style={{ display: 'flex', flex: 1, width: '70vw'}}>
-            <div style={{ padding: '10px', borderRight: '1px solid #ccc', height: 'calc(100vh - 10vh)' }}>
-                <UploadDownload onFilesUpload={onFilesChange} getFilteredFiles={getFilteredFiles} />
-                <input
-                    type="text"
-                    placeholder="Filter by suffix (e.g., .js,.ts)"
-                    value={filter}
-                    onChange={handleFilterChange}
-                    style={{ display: 'block', marginBottom: '10px' }}
-                />
-                <div style={{ marginTop: '20px' }}>
-                    <div>Opened file: {fileName}</div>
-                    <div>
-                        {filteredFiles.map((file, index) => (
-                            <div
-                                key={index}
-                                onClick={() => openFile(file)}
-                                style={{ cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
-                            >
-                                {file.filename}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-            <div style={{ flexGrow: 1 }}>
-                <Editor
-                    height="100%"
-                    language={language}
-                    value={code}
-                    onChange={(newValue) => {
-                        if (fileName) {
-                            const updatedFiles = files.map(file =>
-                                file.filename === fileName ? { ...file, code: newValue || '' } : file
-                            );
-                            onFilesChange(updatedFiles);
-                        }
-                        setCode(newValue || '');
-                    }}
-                />
-            </div>
+  const handleCodeChange = (newValue: string | undefined) => {
+    if (fileName) {
+      const updatedFiles = files.map(file =>
+        file.filename === fileName ? { ...file, code: newValue || '' } : file
+      );
+      onFilesUpdate(updatedFiles);
+    }
+    setCode(newValue || '');
+  };
+
+  return (
+    <div style={{ display: 'flex', flex: 1, width: '70vw' }}>
+      <div style={{ padding: '10px', borderRight: '1px solid #ccc', height: 'calc(100vh - 10vh)' }}>
+        <UploadDownload onFilesUpload={onFilesUpdate} getFilteredFiles={getFilteredFiles} />
+        <input
+          type="text"
+          placeholder="Filter by suffix (e.g., .js,.ts)"
+          value={filter}
+          onChange={(e) => onFilterChange(e.target.value)}
+          style={{ display: 'block', marginBottom: '10px' }}
+        />
+        <div style={{ marginTop: '20px' }}>
+          <div>Opened file: {fileName}</div>
+          <div>
+            {filteredFiles.map((file, index) => (
+              <div
+                key={index}
+                onClick={() => openFile(file)}
+                style={{ cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
+              >
+                {file.filename}
+              </div>
+            ))}
+          </div>
         </div>
-    );
+      </div>
+      <div style={{ flexGrow: 1 }}>
+        <Editor
+          height="100%"
+          language="javascript"
+          value={code}
+          onChange={handleCodeChange}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default CodeEditor;
