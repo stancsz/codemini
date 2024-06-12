@@ -29,8 +29,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
         // Add ChatGPT response to chat
         setChatMessages((prevChatMessages) => [
           ...prevChatMessages,
-          { role: 'assistant', content: chatGPTResponse.message}
-        ]);
+          { role: 'assistant', content: chatGPTResponse.message },
+          ...chatGPTResponse.files.map((file: { filename: any; code: any; }) => ({ role: 'assistant', content: `# Filename: ${file.filename}\n# Code:\n${file.code}` })) // debug
+        ]); 
 
         // Update files based on ChatGPT response
         const updatedFiles = chatGPTResponse.files;
@@ -71,7 +72,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
         <button
           onClick={handleSendMessage}
           disabled={message.trim() === ''}
-          style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'black', color: 'white', borderRadius: '4px'}}
+          style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'black', color: 'white', borderRadius: '4px' }}
         >
           Send
         </button>
