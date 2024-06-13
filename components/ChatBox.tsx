@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 interface ChatBoxProps {
@@ -9,6 +9,29 @@ interface ChatBoxProps {
 const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([]);
+
+  // Load state from localStorage on component mount
+  useEffect(() => {
+    const cachedFiles = localStorage.getItem('files');
+    const cachedChatMessages = localStorage.getItem('chatMessages');
+
+    if (cachedFiles) {
+      onFilesUpdate(JSON.parse(cachedFiles));
+    }
+
+    if (cachedChatMessages) {
+      setChatMessages(JSON.parse(cachedChatMessages));
+    }
+  }, [onFilesUpdate]);
+
+  // Save files and chatMessages to localStorage whenever they update
+  useEffect(() => {
+    localStorage.setItem('files', JSON.stringify(files));
+  }, [files]);
+
+  useEffect(() => {
+    localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+  }, [chatMessages]);
 
   const handleSendMessage = async () => {
     if (message.trim() === '') {
@@ -28,10 +51,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
       if (chatGPTResponse) {
         const newAssistantMessages = [
           { role: 'assistant', content: chatGPTResponse.message },
-          // ...chatGPTResponse.files.map((file: { filename: any; code: any; }) => ({ role: 'assistant', content: `# Filename: ${file.filename}\n# Code:\n${file.code}` })) // Debugging line, uncomment if necessary
         ];
-        
-        setChatMessages((prevChatMessages) => [
+
+        setChatMessages(prevChatMessages => [
           ...prevChatMessages,
           ...newAssistantMessages,
         ]);
@@ -70,6 +92,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     return Array.from(fileMap.entries()).map(([filename, code]) => ({ filename, code }));
   };
 
+  const handleClearCache = () => {
+    localStorage.removeItem('files');
+    localStorage.removeItem('chatMessages');
+    onFilesUpdate([]); // Clear files state
+    setChatMessages([]); // Clear chat messages state
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', border: '1px solid #ccc', height: 'calc(100vh - 10vh)', width: '30vw' }}>
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
@@ -97,6 +126,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
           style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'black', color: 'white', borderRadius: '4px' }}
         >
           Send
+        </button>
+        <button
+          onClick={handleClearCache}
+          style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'red', color: 'white', borderRadius: '4px' }}
+        >
+          Clear
         </button>
       </div>
     </div>
