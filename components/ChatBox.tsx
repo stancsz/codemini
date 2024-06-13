@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { db, auth } from '../firebase';  // Adjust the path according to your project structure
+import { doc, setDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 interface ChatBoxProps {
   files: { filename: string; code: string }[];
@@ -9,8 +12,8 @@ interface ChatBoxProps {
 const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([]);
+  const [user, setUser] = useState(null);
 
-  // Load state from localStorage on component mount
   useEffect(() => {
     const cachedFiles = localStorage.getItem('files');
     const cachedChatMessages = localStorage.getItem('chatMessages');
@@ -24,7 +27,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     }
   }, [onFilesUpdate]);
 
-  // Save files and chatMessages to localStorage whenever they update
   useEffect(() => {
     localStorage.setItem('files', JSON.stringify(files));
   }, [files]);
@@ -33,12 +35,23 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
   }, [chatMessages]);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const handleSendMessage = async () => {
     if (message.trim() === '') {
       return;
     }
 
-    // Add user message to chat
     const codeFiles = files.map(file => `# Filename: ${file.filename}\n# Code:\n${file.code}`).join('\n\n');
     const fullMessage = `${message}\n\nFiles:\n${codeFiles}`;
     const newChatMessages = [...chatMessages, { role: 'user', content: message }];
@@ -46,7 +59,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
 
     try {
       const response = await axios.post('/api/sendMessage', { message: fullMessage });
-      const chatGPTResponse = JSON.parse(response.data.response); // Parse the response as JSON
+      const chatGPTResponse = JSON.parse(response.data.response);
 
       if (chatGPTResponse) {
         const newAssistantMessages = [
@@ -58,10 +71,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
           ...newAssistantMessages,
         ]);
 
-        // Update files based on ChatGPT response
         const updatedFiles = chatGPTResponse.files;
         if (updatedFiles) {
-          // Merge new files with existing files
           const mergedFiles = mergeFiles(files, updatedFiles);
           onFilesUpdate(mergedFiles);
         }
@@ -73,35 +84,61 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     }
 
     setMessage('');
-  };
+  }; 
 
   const mergeFiles = (existingFiles: { filename: string; code: string }[], newFiles: { filename: string; code: string }[]): { filename: string; code: string }[] => {
     const fileMap = new Map<string, string>();
 
-    // Add all existing files to the map
     for (let file of existingFiles) {
       fileMap.set(file.filename, file.code);
     }
 
-    // Add new files to the map, overwriting any existing files with the same filename
     for (let file of newFiles) {
       fileMap.set(file.filename, file.code);
     }
 
-    // Convert the map back to an array
     return Array.from(fileMap.entries()).map(([filename, code]) => ({ filename, code }));
+  };
+
+  const handleSaveProject = async () => {
+    if (user) {
+      const projectId = `project-${Date.now()}`;
+      const projectRef = doc(db, `user/${user.uid}/project/${projectId}`);
+
+      try {
+        await setDoc(projectRef, { files, message: chatMessages });
+        alert('Project saved successfully!');
+      } catch (error) {
+        console.error('Error saving project:', error);
+        alert('Failed to save project.');
+      }
+    } else {
+      alert('User not logged in.');
+    }
   };
 
   const handleClearCache = () => {
     localStorage.removeItem('files');
     localStorage.removeItem('chatMessages');
-    onFilesUpdate([]); // Clear files state
-    setChatMessages([]); // Clear chat messages state
+    onFilesUpdate([]);
+    setChatMessages([]);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', border: '1px solid #ccc', height: 'calc(100vh - 10vh)'}}>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', border: '1px solid #ccc', height: 'calc(100vh - 10vh)', position: 'relative' }}>
+      <button
+        onClick={handleSaveProject}
+        style={{ position: 'absolute', top: 0, right: 0, margin: '10px', padding: '8px 16px', backgroundColor: 'green', color: 'white', borderRadius: '4px', zIndex: 10 }}
+      >
+        Save Project
+      </button>
+      <button
+        onClick={handleClearCache}
+        style={{ position: 'absolute', top: 0, right: '120px', margin: '10px', padding: '8px 16px', backgroundColor: 'gray', color: 'white', borderRadius: '4px', zIndex: 10 }}
+      >
+        🗑️
+      </button>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px', marginTop: '40px' }}>
         {chatMessages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', wordWrap: 'break-word' }}>
             <strong>{msg.role === 'user' ? '✨User' : '🐣Mini'}:</strong>
@@ -126,12 +163,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
           style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'black', color: 'white', borderRadius: '4px' }}
         >
           Send
-        </button>
-        <button
-          onClick={handleClearCache}
-          style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'red', color: 'white', borderRadius: '4px' }}
-        >
-          Clear
         </button>
       </div>
     </div>
