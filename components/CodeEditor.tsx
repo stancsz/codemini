@@ -5,7 +5,7 @@ import Editor from '@monaco-editor/react';
 import UploadDownload from './UploadDownload';
 
 interface CodeEditorProps {
-    files: { filename: string; code: string }[];
+    files: { filename: string; code: string, }[];
     onFilesUpdate: (updatedFiles: { filename: string; code: string }[]) => void;
     filter: string;
     onFilterChange: (filter: string) => void;
@@ -19,6 +19,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
         setCode(file.code);
         setFileName(file.filename);
     }, []);
+
+    const deleteFile = useCallback((filename: string) => {
+        const updatedFiles = files.filter(file => file.filename !== filename);
+        onFilesUpdate(updatedFiles);
+    }, [files, onFilesUpdate]);
 
     const getLanguageFromFilename = (filename: string) => {
         const ext = filename.split('.').pop();
@@ -36,7 +41,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
                 return 'cpp';
             case 'html':
                 return 'html';
-            case 'css':
+        case 'css':
                 return 'css';
             default:
                 return 'plaintext';
@@ -45,7 +50,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
 
     const getFilteredFiles = useCallback(() => {
         if (!filter) return files;
-
         const suffixes = filter.split(/[,;]/).map(suffix => suffix.trim());
         return files.filter(file => suffixes.some(suffix => file.filename.endsWith(suffix)));
     }, [filter, files]);
@@ -71,10 +75,25 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
         setCode(newValue || '');
     };
 
+    const handleFilesUpload = (newFiles: { filename: string; code: string }[]) => {
+        const updatedFiles = files.slice(); // Create a shallow copy of the existing files array
+        newFiles.forEach(newFile => {
+            const existingFile = updatedFiles.find(file => file.filename === newFile.filename);
+            if (existingFile) {
+                // If the file already exists, append the new code to the existing code
+                existingFile.code += newFile.code;
+            } else {
+                // Otherwise, add the new file to the array
+                updatedFiles.push(newFile);
+            }
+        });
+        onFilesUpdate(updatedFiles);
+    };
+
     return (
         <div style={{ display: 'flex', flex: 1, width: '70vw' }}>
             <div style={{ padding: '10px', borderRight: '1px solid #ccc', height: 'calc(100vh - 10vh)' }}>
-                <UploadDownload onFilesUpload={onFilesUpdate} getFilteredFiles={getFilteredFiles} />
+                <UploadDownload onFilesUpload={handleFilesUpload} getFilteredFiles={getFilteredFiles} />
                 <input
                     type="text"
                     placeholder="Filter by suffix (e.g., .js,.ts)"
@@ -89,9 +108,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
                             <div
                                 key={index}
                                 onClick={() => openFile(file)}
-                                style={{ cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
+                                style={{ position: 'relative', cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
+                                onMouseEnter={e => e.currentTarget.querySelector('.delete-icon')!.style.display = 'inline'}
+                                onMouseLeave={e => e.currentTarget.querySelector('.delete-icon')!.style.display = 'none'}
                             >
                                 {file.filename}
+                                <span onClick={() => deleteFile(file.filename)}
+                                      style={{ position: 'absolute', right: '5px', cursor: 'pointer', display: 'none' }}
+                                      className='delete-icon'
+                                >❌</span>
                             </div>
                         ))}
                     </div>
