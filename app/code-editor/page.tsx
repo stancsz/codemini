@@ -15,10 +15,10 @@ const CodeEditorPage: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 10vh)' }}>
       <h1>Code Editor</h1>
       <div style={{ display: 'flex', flex: 1 }}>
-        <div>
+        <div style={{ flex: 1}}>
           <CodeEditor files={files} onFilesUpdate={handleFilesUpdate} filter={filter} onFilterChange={setFilter} />
         </div>
-        <div>
+        <div style={{ flex: 1}}>
           <ChatBox files={files} onFilesUpdate={handleFilesUpdate} />
         </div>
       </div>
