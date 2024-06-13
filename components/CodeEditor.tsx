@@ -132,8 +132,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
                 key={index}
                 onClick={() => openFile(file)}
                 style={{ position: 'relative', cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
-                onMouseEnter={e => e.currentTarget.querySelector('.delete-icon')!.style.display = 'inline'}
-                onMouseLeave={e => e.currentTarget.querySelector('.delete-icon')!.style.display = 'none'}
+                onMouseEnter={e => {
+                    const deleteIcon = e.currentTarget.querySelector('.delete-icon') as HTMLElement;
+                    if (deleteIcon) deleteIcon.style.display = 'inline';
+                  }}
+                  onMouseLeave={e => {
+                    const deleteIcon = e.currentTarget.querySelector('.delete-icon') as HTMLElement;
+                    if (deleteIcon) deleteIcon.style.display = 'none';
+                  }}
               >
                 {file.filename}
                 <span onClick={(e) => {
