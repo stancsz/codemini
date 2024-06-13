@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { db, auth } from '../firebase';  // Adjust the path according to your project structure
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDocs, collection } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
 interface ChatBoxProps {
@@ -13,6 +13,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([]);
   const [user, setUser] = useState(null);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
   useEffect(() => {
     const cachedFiles = localStorage.getItem('files');
@@ -39,13 +41,21 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
+        fetchProjects(user.uid);
       } else {
         setUser(null);
+        setProjects([]);
       }
     });
 
     return () => unsubscribe();
   }, []);
+
+  const fetchProjects = async (uid: string) => {
+    const querySnapshot = await getDocs(collection(db, `user/${uid}/project`));
+    const userProjects = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setProjects(userProjects);
+  };
 
   const handleSendMessage = async () => {
     if (message.trim() === '') {
@@ -84,7 +94,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     }
 
     setMessage('');
-  }; 
+  };
 
   const mergeFiles = (existingFiles: { filename: string; code: string }[], newFiles: { filename: string; code: string }[]): { filename: string; code: string }[] => {
     const fileMap = new Map<string, string>();
@@ -108,6 +118,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
       try {
         await setDoc(projectRef, { files, message: chatMessages });
         alert('Project saved successfully!');
+        fetchProjects(user.uid);  // Refresh project list
       } catch (error) {
         console.error('Error saving project:', error);
         alert('Failed to save project.');
@@ -124,6 +135,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     setChatMessages([]);
   };
 
+  const handleLoadProject = (project: any) => {
+    onFilesUpdate(project.files);
+    setChatMessages(project.message);
+    setSelectedProject(project.id);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', border: '1px solid #ccc', height: 'calc(100vh - 10vh)', position: 'relative' }}>
       <button
@@ -138,6 +155,22 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
       >
         🗑️
       </button>
+      <select
+        value={selectedProject || ''}
+        onChange={(e) => {
+          const projectId = e.target.value;
+          const project = projects.find(proj => proj.id === projectId);
+          if (project) {
+            handleLoadProject(project);
+          }
+        }}
+        style={{ position: 'absolute', top: 0, right: '240px', margin: '10px', padding: '8px 16px', zIndex: 10 }}
+      >
+        <option value="" disabled>Select a Project</option>
+        {projects.map((project, index) => (
+          <option key={index} value={project.id}>{`Project ${index + 1}`}</option>
+        ))}
+      </select>
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px', marginTop: '40px' }}>
         {chatMessages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', wordWrap: 'break-word' }}>
