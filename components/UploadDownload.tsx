@@ -56,6 +56,20 @@ const UploadDownload: React.FC<UploadDownloadProps> = ({ onFilesUpload, getFilte
                 };
                 reader.readAsText(fileObj.file);
             }
+
+            // Check if 'mini_chat.json' exists and load its content to chat box
+            const miniChatFile = filesArray.find(file => file.file.name === 'mini_chat.json');
+            if (miniChatFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target?.result as string;
+                    if (content) {
+                        const parsedMessages = JSON.parse(content);
+                        localStorage.setItem('chatMessages', JSON.stringify(parsedMessages));
+                    }
+                };
+                reader.readAsText(miniChatFile.file);
+            }
         }
     };
 
@@ -66,6 +80,14 @@ const UploadDownload: React.FC<UploadDownloadProps> = ({ onFilesUpload, getFilte
         filteredFiles.forEach(({ filename, code }) => {
             zip.file(filename, code);
         });
+
+        // Add mini_chat.json containing chat messages
+        const chatMessages = localStorage.getItem('chatMessages');
+        if (chatMessages) {
+            zip.file('mini_chat.json', chatMessages);
+        } else {
+            zip.file('mini_chat.json', JSON.stringify([])); // Add an empty array if no chat messages
+        }
 
         zip.generateAsync({ type: 'blob' }).then(content => {
             const link = document.createElement('a');
