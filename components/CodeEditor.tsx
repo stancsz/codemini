@@ -4,7 +4,8 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import UploadDownload from './UploadDownload';
 import { doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase';  // Adjust the path according to your project structure
+import { db, auth } from '../firebase';  // Adjust the path according to your project structure
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 interface CodeEditorProps {
   files: { filename: string; code: string, }[];
@@ -16,6 +17,19 @@ interface CodeEditorProps {
 const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, onFilterChange }) => {
   const [code, setCode] = useState('');
   const [fileName, setFileName] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const openFile = useCallback((file: { filename: string; code: string }) => {
     setCode(file.code);
@@ -27,7 +41,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
     onFilesUpdate(updatedFiles);
 
     // Firestore deletion
-    if (filename && filename.startsWith('project-')) { // Assuming project filenames start with 'project-'
+    if (filename && filename.startsWith('project-') && user) { // Assuming project filenames start with 'project-'
       const projectRef = doc(db, `user/${user.uid}/project/${filename}`);
       try {
         await deleteDoc(projectRef);
@@ -35,7 +49,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
         console.log('Error deleting file from Firestore: ', error);
       }
     }
-  }, [files, onFilesUpdate]);
+  }, [files, onFilesUpdate, user]);
 
   const getLanguageFromFilename = (filename: string) => {
     const ext = filename.split('.').pop();
@@ -113,7 +127,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
         />
         <div style={{ marginTop: '20px' }}>
           <div>Opened file: {fileName}</div>
-          <div>
             {filteredFiles.map((file, index) => (
               <div
                 key={index}
@@ -134,7 +147,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
             ))}
           </div>
         </div>
-      </div>
       <div style={{ display: 'flex', flex: 1, maxWidth: '70%', overflowX: 'auto' }}>
         <Editor
           height="100%"

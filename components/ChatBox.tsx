@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { db, auth } from '../firebase';  // Adjust the path according to your project structure
 import { doc, setDoc, getDocs, collection, deleteDoc, updateDoc } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 interface ChatBoxProps {
   files: { filename: string; code: string }[];
@@ -12,7 +12,7 @@ interface ChatBoxProps {
 const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([]);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
