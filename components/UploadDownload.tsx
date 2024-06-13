@@ -70,7 +70,9 @@ const UploadDownload: React.FC<UploadDownloadProps> = ({ onFilesUpload, getFilte
         zip.generateAsync({ type: 'blob' }).then(content => {
             const link = document.createElement('a');
             link.href = URL.createObjectURL(content);
-            link.download = 'files.zip';
+            const now = new Date();
+            const dateString = now.toISOString().slice(0, 16).replace(/[:T]/g, '-');
+            link.download = `mini-${dateString}.zip`;
             link.click();
         });
     };
