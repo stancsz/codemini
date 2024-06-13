@@ -92,7 +92,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
 
     return (
         <div style={{ display: 'flex', flex: 1}}>
-            <div style={{ padding: '10px', borderRight: '1px solid #ccc', height: 'calc(100vh - 10vh)' }}>
+            <div style={{ padding: '10px', borderRight: '1px solid #ccc', height: 'calc(100vh - 10vh)', width: '25%', overflowY: 'auto' }}>
                 <UploadDownload onFilesUpload={handleFilesUpload} getFilteredFiles={getFilteredFiles} />
                 <input
                     type="text"
@@ -122,7 +122,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
                     </div>
                 </div>
             </div>
-            <div style={{ display: 'flex', flex: 1 }}>
+            <div style={{ display: 'flex', flex: 1, maxWidth: '70%', overflowX: 'auto' }}>
                 <Editor
                     height="100%"
                     language={fileName ? getLanguageFromFilename(fileName) : 'plaintext'}
