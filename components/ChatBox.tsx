@@ -26,17 +26,22 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
       const chatGPTResponse = JSON.parse(response.data.response); // Parse the response as JSON
 
       if (chatGPTResponse) {
-        // Add ChatGPT response to chat
+        const newAssistantMessages = [
+          { role: 'assistant', content: chatGPTResponse.message },
+          // ...chatGPTResponse.files.map((file: { filename: any; code: any; }) => ({ role: 'assistant', content: `# Filename: ${file.filename}\n# Code:\n${file.code}` })) // Debugging line, uncomment if necessary
+        ];
+        
         setChatMessages((prevChatMessages) => [
           ...prevChatMessages,
-          { role: 'assistant', content: chatGPTResponse.message },
-          // ...chatGPTResponse.files.map((file: { filename: any; code: any; }) => ({ role: 'assistant', content: `# Filename: ${file.filename}\n# Code:\n${file.code}` })) // debug
-        ]); 
+          ...newAssistantMessages,
+        ]);
 
         // Update files based on ChatGPT response
         const updatedFiles = chatGPTResponse.files;
         if (updatedFiles) {
-          onFilesUpdate(updatedFiles);
+          // Merge new files with existing files
+          const mergedFiles = mergeFiles(files, updatedFiles);
+          onFilesUpdate(mergedFiles);
         }
       } else {
         console.error('No response from ChatGPT');
@@ -46,6 +51,23 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     }
 
     setMessage('');
+  };
+
+  const mergeFiles = (existingFiles: { filename: string; code: string }[], newFiles: { filename: string; code: string }[]): { filename: string; code: string }[] => {
+    const fileMap = new Map<string, string>();
+
+    // Add all existing files to the map
+    for (let file of existingFiles) {
+      fileMap.set(file.filename, file.code);
+    }
+
+    // Add new files to the map, overwriting any existing files with the same filename
+    for (let file of newFiles) {
+      fileMap.set(file.filename, file.code);
+    }
+
+    // Convert the map back to an array
+    return Array.from(fileMap.entries()).map(([filename, code]) => ({ filename, code }));
   };
 
   return (
