@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { db, auth } from '../firebase';  // Adjust the path according to your project structure
-import { doc, setDoc, getDocs, collection } from 'firebase/firestore';
+import { doc, setDoc, getDocs, collection, deleteDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
 interface ChatBoxProps {
@@ -112,8 +112,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
 
   const handleSaveProject = async () => {
     if (user) {
-      const projectId = `project-${Date.now()}`;
-      const projectRef = doc(db, `user/${user.uid}/project/${projectId}`);
+      const projectRef = doc(db, `user/${user.uid}/project/${selectedProject || `project-${Date.now()}`}`);
 
       try {
         await setDoc(projectRef, { files, message: chatMessages });
@@ -128,11 +127,22 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     }
   };
 
-  const handleClearCache = () => {
-    localStorage.removeItem('files');
-    localStorage.removeItem('chatMessages');
-    onFilesUpdate([]);
-    setChatMessages([]);
+  const handleClearCache = async () => {
+    if (selectedProject && user) {
+      const projectRef = doc(db, `user/${user.uid}/project/${selectedProject}`);
+
+      try {
+        await deleteDoc(projectRef);
+        alert('Project deleted successfully!');
+        setSelectedProject(null);
+        fetchProjects(user.uid); // Refresh project list
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        alert('Failed to delete project.');
+      }
+    } else {
+      alert('No project selected.');
+    }
   };
 
   const handleLoadProject = (project: any) => {
@@ -147,11 +157,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
         onClick={handleSaveProject}
         style={{ position: 'absolute', top: 0, right: 0, margin: '10px', padding: '8px 16px', backgroundColor: 'green', color: 'white', borderRadius: '4px', zIndex: 10 }}
       >
-        Save Project
+        💾
       </button>
       <button
         onClick={handleClearCache}
-        style={{ position: 'absolute', top: 0, right: '120px', margin: '10px', padding: '8px 16px', backgroundColor: 'gray', color: 'white', borderRadius: '4px', zIndex: 10 }}
+        style={{ position: 'absolute', top: 0, right: '120px', margin: '10px', padding: '8px 16px', backgroundColor: 'red', color: 'white', borderRadius: '4px', zIndex: 10 }}
       >
         🗑️
       </button>

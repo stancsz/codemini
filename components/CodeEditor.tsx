@@ -3,6 +3,8 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import UploadDownload from './UploadDownload';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';  // Adjust the path according to your project structure
 
 interface CodeEditorProps {
   files: { filename: string; code: string, }[];
@@ -20,9 +22,19 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
     setFileName(file.filename);
   }, []);
 
-  const deleteFile = useCallback((filename: string) => {
+  const deleteFile = useCallback(async (filename: string) => {
     const updatedFiles = files.filter(file => file.filename !== filename);
     onFilesUpdate(updatedFiles);
+
+    // Firestore deletion
+    if (filename && filename.startsWith('project-')) { // Assuming project filenames start with 'project-'
+      const projectRef = doc(db, `user/${user.uid}/project/${filename}`);
+      try {
+        await deleteDoc(projectRef);
+      } catch (error) {
+        console.log('Error deleting file from Firestore: ', error);
+      }
+    }
   }, [files, onFilesUpdate]);
 
   const getLanguageFromFilename = (filename: string) => {
@@ -111,8 +123,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
                 onMouseLeave={e => e.currentTarget.querySelector('.delete-icon')!.style.display = 'none'}
               >
                 {file.filename}
-                <span onClick={() => deleteFile(file.filename)}
-                      style={{ position: 'absolute', right: '5px', cursor: 'pointer', display: 'none' }}
+                <span onClick={(e) => {
+                  e.stopPropagation();
+                  deleteFile(file.filename);
+                }}
+                      style={{ position: 'absolute', right: '5px', cursor: 'pointer', color: 'red', display: 'none' }}
                       className='delete-icon'
                 >❌</span>
               </div>
