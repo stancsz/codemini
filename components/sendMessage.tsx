@@ -5,10 +5,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
 const sendMessage = async (message: string) => {
-  let openaiApiKey = '';
-
+  let openaiApiKey: string = '';
   const getOpenAiKey = async () => {
-    return new Promise((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       onAuthStateChanged(auth, async (currentUser) => {
         if (currentUser) {
           const docRef = doc(db, `user/${currentUser.uid}/openai`, 'token');
@@ -35,7 +34,7 @@ const sendMessage = async (message: string) => {
     });
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',

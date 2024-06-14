@@ -69,7 +69,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
 
     try {
       const response = await sendMessage(fullMessage);
-      const chatGPTResponse = JSON.parse(response);
+      const chatGPTResponse = response ? JSON.parse(response) : null;
 
       if (chatGPTResponse) {
         const newAssistantMessages = [
