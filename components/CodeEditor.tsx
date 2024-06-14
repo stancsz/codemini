@@ -76,7 +76,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
 
   const getFilteredFiles = useCallback(() => {
     if (!filter) return files;
-    const suffixes = filter.split(/[,;]/).map(suffix => suffix.trim());
+    const suffixes = ("" + filter).split(/[,;]/).map(suffix => suffix.trim());
     return files.filter(file => suffixes.some(suffix => file.filename.endsWith(suffix)));
   }, [filter, files]);
 
