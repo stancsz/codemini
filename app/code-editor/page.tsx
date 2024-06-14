@@ -18,7 +18,7 @@ const CodeEditorPage: React.FC = () => {
         <div style={{ flex: 1, minWidth: '60%', maxWidth: '70%' }}>
           <CodeEditor files={files} onFilesUpdate={handleFilesUpdate} filter={filter} onFilterChange={setFilter} />
         </div>
-        <div style={{ flex: 1}}>
+        <div style={{ flex: 1, paddingLeft:'10px', paddingRight:'10px'}}>
           <ChatBox files={files} onFilesUpdate={handleFilesUpdate} />
         </div>
       </div>

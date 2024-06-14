@@ -39,6 +39,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
   const deleteFile = useCallback(async (filename: string) => {
     const updatedFiles = files.filter(file => file.filename !== filename);
     onFilesUpdate(updatedFiles);
+    setCode('');
+    setFileName(null);
 
     // Firestore deletion
     if (filename && filename.startsWith('project-') && user) { // Assuming project filenames start with 'project-'
@@ -76,7 +78,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
 
   const getFilteredFiles = useCallback(() => {
     if (!filter) return files;
-    const suffixes = filter.split(/[,;]/).map(suffix => suffix.trim());
+    const suffixes = ("" + filter).split(/[,;]/).map(suffix => suffix.trim());
     return files.filter(file => suffixes.some(suffix => file.filename.endsWith(suffix)));
   }, [filter, files]);
 
