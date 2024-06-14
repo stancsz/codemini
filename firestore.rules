@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /user/{userId}/project {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /user/{userId}/project/{projectId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /user/{userId}/openai {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /user/{userId}/openai/token {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
