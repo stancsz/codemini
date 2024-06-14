@@ -15,6 +15,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{ type: string; message: string } | null>(null);
 
   useEffect(() => {
     const cachedFiles = localStorage.getItem('files');
@@ -53,7 +54,10 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
 
   const fetchProjects = async (uid: string) => {
     const querySnapshot = await getDocs(collection(db, `user/${uid}/project`));
-    const userProjects = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const userProjects = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     setProjects(userProjects);
   };
 
@@ -62,7 +66,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
       return;
     }
 
-    const codeFiles = files.map(file => `# Filename: ${file.filename}\n# Code:\n${file.code}`).join('\n\n');
+    const codeFiles = files.map(file => `# Filename: ${file.filename}
+# Code:
+${file.code}`).join('\n\n');
     const fullMessage = `${message}\n\nFiles:\n${codeFiles}`;
     const newChatMessages = [...chatMessages, { role: 'user', content: message }];
     setChatMessages(newChatMessages);
@@ -72,14 +78,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
       const chatGPTResponse = response ? JSON.parse(response) : null;
 
       if (chatGPTResponse) {
-        const newAssistantMessages = [
-          { role: 'assistant', content: chatGPTResponse.message },
-        ];
+        const newAssistantMessages = [{ role: 'assistant', content: chatGPTResponse.message }];
 
-        setChatMessages(prevChatMessages => [
-          ...prevChatMessages,
-          ...newAssistantMessages,
-        ]);
+        setChatMessages(prevChatMessages => [...prevChatMessages, ...newAssistantMessages]);
 
         const updatedFiles = chatGPTResponse.files;
         if (updatedFiles) {
@@ -110,20 +111,27 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     return Array.from(fileMap.entries()).map(([filename, code]) => ({ filename, code }));
   };
 
+  const displayNotification = (type: string, message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  };
+
   const handleSaveProject = async () => {
     if (user) {
       const projectRef = doc(db, `user/${user.uid}/project/${selectedProject || `project-${Date.now()}`}`);
 
       try {
         await setDoc(projectRef, { files, message: chatMessages });
-        alert('Project saved successfully!');
+        displayNotification('success', 'Project saved successfully!');
         fetchProjects(user.uid);  // Refresh project list
       } catch (error) {
         console.error('Error saving project:', error);
-        alert('Failed to save project.');
+        displayNotification('error', 'Failed to save project.');
       }
     } else {
-      alert('User not logged in.');
+      displayNotification('error', 'User not logged in.');
     }
   };
 
@@ -136,15 +144,15 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
 
       try {
         await deleteDoc(projectRef);
-        alert('Project deleted successfully!');
+        displayNotification('success', 'Project deleted successfully!');
         setSelectedProject(null);
         fetchProjects(user.uid); // Refresh project list
       } catch (error) {
         console.error('Error deleting project:', error);
-        alert('Failed to delete project.');
+        displayNotification('error', 'Failed to delete project.');
       }
     } else {
-      alert('No project selected.');
+      displayNotification('error', 'No project selected.');
     }
   };
 
@@ -155,7 +163,35 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', border: '1px solid #ccc', height: 'calc(100vh - 10vh)', position: 'relative' }}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      flex: 1,
+      justifyContent: 'space-between',
+      border: '1px solid #ccc',
+      height: 'calc(100vh - 10vh)',
+      position: 'relative',
+      backdropFilter: 'blur(10px)',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      borderRadius: '12px',
+    }}>
+      {notification && (
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          padding: '10px 20px',
+          backgroundColor: notification.type === 'success' ? '#4CAF50' : '#F44336', // Trendier colors
+          color: 'white',
+          borderRadius: '8px',
+          zIndex: 1000,
+          transition: 'opacity 0.5s',
+          opacity: notification ? 1 : 0,
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Added shadow
+        }}>
+          {notification.message}
+        </div>
+      )}
       <button
         onClick={handleSaveProject}
         style={{ position: 'absolute', top: 0, right: 0, margin: '10px', padding: '8px 16px', backgroundColor: 'green', color: 'white', borderRadius: '4px', zIndex: 10 }}
