@@ -23,7 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup listener on unmount
   }, [router]);
 
   const handleLogout = async () => {
@@ -55,6 +55,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <>
                 <li className="nav-item">
                   <span className="nav-link">{user.email}</span>
+                </li>
+                <li className="nav-item">
+                  <Link href="/set-tokens" className="nav-link">Set Tokens</Link>
                 </li>
                 <li className="nav-item">
                   <button onClick={handleLogout} className="nav-button">Logout</button>

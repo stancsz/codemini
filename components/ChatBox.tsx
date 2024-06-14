@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { db, auth } from '../firebase';  // Adjust the path according to your project structure
 import { doc, setDoc, getDocs, collection, deleteDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
+import sendMessage from './sendMessage';
 
 interface ChatBoxProps {
   files: { filename: string; code: string }[];
@@ -68,8 +68,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
     setChatMessages(newChatMessages);
 
     try {
-      const response = await axios.post('/api/sendMessage', { message: fullMessage });
-      const chatGPTResponse = JSON.parse(response.data.response);
+      const response = await sendMessage(fullMessage);
+      const chatGPTResponse = JSON.parse(response);
 
       if (chatGPTResponse) {
         const newAssistantMessages = [
