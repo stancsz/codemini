@@ -1,42 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server';
+import React from 'react';
 import OpenAI from 'openai';
 import { db, auth } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
-let openaiApiKey = '';
+const sendMessage = async (message: string) => {
+  let openaiApiKey = '';
 
-const getOpenAiKey = async () => {
-  return new Promise((resolve, reject) => {
-    onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        const docRef = doc(db, `user/${currentUser.uid}/openai`, 'token');
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          resolve(docSnap.data().apiKey);
+  const getOpenAiKey = async () => {
+    return new Promise((resolve, reject) => {
+      onAuthStateChanged(auth, async (currentUser) => {
+        if (currentUser) {
+          const docRef = doc(db, `user/${currentUser.uid}/openai`, 'token');
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            resolve(docSnap.data().apiKey);
+          } else {
+            reject(new Error('No API key found'));
+          }
         } else {
-          reject(new Error('No API key found'));
+          reject(new Error('User not logged in'));
         }
-      } else {
-        reject(new Error('User not logged in'));
-      }
+      });
     });
-  });
-};
+  };
 
-export async function POST(req: NextRequest) {
-  const { message } = await req.json();
   try {
     if (!openaiApiKey) {
       openaiApiKey = await getOpenAiKey();
     }
     const openai = new OpenAI({
       apiKey: openaiApiKey,
+      dangerouslyAllowBrowser: true
     });
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      response_format: { type: 'json_object' },
+      model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'system',
@@ -51,8 +50,11 @@ export async function POST(req: NextRequest) {
       frequency_penalty: 0,
       presence_penalty: 0,
     });
-    return NextResponse.json({ response: response.choices[0].message.content });
+    return response.choices[0].message.content;
   } catch (error) {
-    return NextResponse.json({ error: 'Error communicating with OpenAI' }, { status: 500 });
+    console.error('Error communicating with OpenAI:', error);
+    throw new Error('Error communicating with OpenAI');
   }
-}
+};
+
+export default sendMessage;
