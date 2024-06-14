@@ -3,6 +3,7 @@ import { db, auth } from '../firebase';  // Adjust the path according to your pr
 import { doc, setDoc, getDocs, collection, deleteDoc, updateDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import sendMessage from './sendMessage';
+import '../styles/ChatBox.css';  // Import the new CSS file
 
 interface ChatBoxProps {
   files: { filename: string; code: string }[];
@@ -163,44 +164,19 @@ ${file.code}`).join('\n\n');
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      flex: 1,
-      justifyContent: 'space-between',
-      border: '1px solid #ccc',
-      height: 'calc(100vh - 10vh)',
-      position: 'relative',
-      backdropFilter: 'blur(10px)',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-      borderRadius: '12px',
-    }}>
+    <div className="chatbox-container">
       {notification && (
-        <div style={{
-          position: 'fixed',
-          top: '10px',
-          right: '10px',
-          padding: '10px 20px',
-          backgroundColor: notification.type === 'success' ? '#4CAF50' : '#F44336', // Trendier colors
-          color: 'white',
-          borderRadius: '8px',
-          zIndex: 1000,
-          transition: 'opacity 0.5s',
-          opacity: notification ? 1 : 0,
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Added shadow
-        }}>
-          {notification.message}
-        </div>
+        <div className={`notification ${notification.type}`}>{notification.message}</div>
       )}
       <button
         onClick={handleSaveProject}
-        style={{ position: 'absolute', top: 0, right: 0, margin: '10px', padding: '8px 16px', backgroundColor: 'green', color: 'white', borderRadius: '4px', zIndex: 10 }}
+        className="save-project-button"
       >
         💾
       </button>
       <button
         onClick={handleClearCache}
-        style={{ position: 'absolute', top: 0, right: '120px', margin: '10px', padding: '8px 16px', backgroundColor: 'red', color: 'white', borderRadius: '4px', zIndex: 10 }}
+        className="clear-cache-button"
       >
         🗑️
       </button>
@@ -213,36 +189,34 @@ ${file.code}`).join('\n\n');
             handleLoadProject(project);
           }
         }}
-        style={{ position: 'absolute', top: 0, right: '240px', margin: '10px', padding: '8px 16px', zIndex: 10 }}
+        className="project-selector"
       >
         <option value="" disabled>Select a Project</option>
         {projects.map((project, index) => (
           <option key={index} value={project.id}>{`Project ${index + 1}`}</option>
         ))}
       </select>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px', marginTop: '40px' }}>
+      <div className="chat-messages">
         {chatMessages.map((msg, index) => (
-          <div key={index} style={{ marginBottom: '8px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', wordWrap: 'break-word' }}>
+          <div key={index} className="message-box">
             <strong>{msg.role === 'user' ? '✨User' : '🐣Mini'}:</strong>
-            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{msg.content}</pre>
+            <pre className="message-content">{msg.content}</pre>
           </div>
         ))}
       </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', padding: '16px', borderTop: '1px solid #ccc' }}>
+      <div className="message-input-container">
         <textarea
           id="prompt-textarea"
           rows={1}
           placeholder="Message ChatGPT"
-          className="resize-none bg-transparent w-full"
+          className="message-input"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          style={{ border: '1px solid #ccc', borderRadius: '4px', padding: '8px', flex: 1 }}
         />
         <button
           onClick={handleSendMessage}
           disabled={message.trim() === ''}
-          style={{ marginLeft: '8px', padding: '8px 16px', backgroundColor: 'black', color: 'white', borderRadius: '4px' }}
+          className="send-button"
         >
           Send
         </button>
