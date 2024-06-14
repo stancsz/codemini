@@ -128,6 +128,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
   };
 
   const handleClearCache = async () => {
+    setChatMessages([]); // Clear chat messages
+    onFilesUpdate([]); // Clear files
+
     if (selectedProject && user) {
       const projectRef = doc(db, `user/${user.uid}/project/${selectedProject}`);
 

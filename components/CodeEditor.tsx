@@ -39,6 +39,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
   const deleteFile = useCallback(async (filename: string) => {
     const updatedFiles = files.filter(file => file.filename !== filename);
     onFilesUpdate(updatedFiles);
+    setCode('');
+    setFileName(null);
 
     // Firestore deletion
     if (filename && filename.startsWith('project-') && user) { // Assuming project filenames start with 'project-'
