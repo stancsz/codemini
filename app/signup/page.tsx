@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { auth } from "../../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import './signup.css';
 
 const SignUpPage = () => {
   const [email, setEmail] = useState("");
@@ -19,21 +20,26 @@ const SignUpPage = () => {
   };
 
   return (
-    <div>
-      <h1>Sign Up</h1>
-      <input 
-        type="email" 
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)} 
-        placeholder="Email" 
-      />
-      <input 
-        type="password" 
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)} 
-        placeholder="Password" 
-      />
-      <button onClick={handleSignUp}>Sign Up</button>
+    <div className="signup-container">
+      <div className="signup-card">
+        <h1 className="signup-title">Sign Up</h1>
+        <p className="signup-description">Welcome! Create an account to start using CodeMini.</p>
+        <input 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          placeholder="Email"  
+          className="signup-input"
+        />
+        <input 
+          type="password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder="Password" 
+          className="signup-input"
+        />
+        <button onClick={handleSignUp} className="signup-button">Sign Up</button>
+      </div>
     </div>
   );
 };
