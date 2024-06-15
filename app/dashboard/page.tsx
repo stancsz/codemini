@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import './dashboard.css';
 
 const DashboardPage = () => {
   const [user, setUser] = useState<any>(null);
@@ -32,16 +33,16 @@ const DashboardPage = () => {
   };
 
   return (
-    <div>
+    <div className="dashboard-container">
       <h1>Dashboard</h1>
-      <div>
-            <h1>Welcome to CodeMini</h1>
-            <p><a href="/code-editor">Go to Code Editor</a></p>
-        </div>
-      {user && <p>Welcome, {user.email}</p>}
-      <button onClick={handleLogout}>Logout</button>
+      <div className="welcome-section">
+        <h2>Welcome to CodeMini</h2>
+        <p>This is your dashboard where you can manage your projects, set your OpenAI tokens, and navigate through the features of CodeMini.</p>
+        <p><a href="/code-editor" className="dashboard-link">Go to Code Editor</a></p>
+        {user && <p className="user-info">Logged in as {user.email}</p>}
+      </div>
+      <button onClick={handleLogout} className="logout-button">Logout</button>
     </div>
-    
   );
 };
 
