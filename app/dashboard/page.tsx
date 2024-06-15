@@ -34,7 +34,7 @@ const DashboardPage = () => {
 
   return (
     <div className="dashboard-container">
-      <h1>Dashboard</h1>
+      {/* <h1>Dashboard</h1> */}
       <div className="welcome-section">
         <h2>Welcome to CodeMini</h2>
         <p>This is your dashboard where you can manage your projects, set your OpenAI tokens, and navigate through the features of CodeMini.</p>
