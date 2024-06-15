@@ -13,7 +13,7 @@ const CodeEditorPage: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 10vh)' }}>
-      <h1>Code Editor</h1>
+      {/* <h1>Code Editor</h1> */}
       <div style={{ display: 'flex', flex: 1 }}>
         <div style={{ flex: 1, minWidth: '60%', maxWidth: '70%' }}>
           <CodeEditor files={files} onFilesUpdate={handleFilesUpdate} filter={filter} onFilterChange={setFilter} />

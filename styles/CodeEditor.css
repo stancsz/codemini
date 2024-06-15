@@ -1,0 +1,53 @@
+.codeeditor-container {
+    display: flex;
+    flex: 1;
+    padding-top: 1rem;
+  }
+  
+  .files-list {
+    padding: 10px;
+    border-right: 1px solid #ccc;
+    height: calc(100vh - 10vh);
+    width: 25%;
+    overflow-y: auto;
+  }
+  
+  .filter-input {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .opened-file {
+    margin-top: 20px;
+  }
+  
+  .file-links {
+    margin-top: 20px;
+  }
+  
+  .file-link {
+    position: relative;
+    cursor: pointer;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .file-link .delete-icon {
+    position: absolute;
+    right: 5px;
+    cursor: pointer;
+    display: none;
+    color: red;
+  }
+  
+  .file-link:hover .delete-icon {
+    display: inline;
+  }
+  
+  .editor-section {
+    display: flex;
+    flex: 1;
+    max-width: 70%;
+    overflow-x: auto;
+  }
+  

@@ -6,6 +6,7 @@ import UploadDownload from './UploadDownload';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';  // Adjust the path according to your project structure
 import { onAuthStateChanged, User } from 'firebase/auth';
+import '../styles/CodeEditor.css';  // Import the new CSS file
 
 interface CodeEditorProps {
   files: { filename: string; code: string, }[];
@@ -117,45 +118,36 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
   };
 
   return (
-    <div style={{ display: 'flex', flex: 1, paddingTop: '1rem' }}>
-      <div style={{ padding: '10px', borderRight: '1px solid #ccc', height: 'calc(100vh - 10vh)', width: '25%', overflowY: 'auto' }}>
+    <div className="codeeditor-container">
+      <div className="files-list">
         <UploadDownload onFilesUpload={handleFilesUpload} getFilteredFiles={getFilteredFiles} />
         <input
           type="text"
           placeholder="Filter by suffix (e.g., .js,.ts)"
           value={filter}
           onChange={(e) => onFilterChange(e.target.value)}
-          style={{ display: 'block', marginBottom: '10px' }}
+          className="filter-input"
         />
-        <div style={{ marginTop: '20px' }}>
-          <div>Opened file: {fileName}</div>
-            {filteredFiles.map((file, index) => (
-              <div
-                key={index}
-                onClick={() => openFile(file)}
-                style={{ position: 'relative', cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
-                onMouseEnter={e => {
-                    const deleteIcon = e.currentTarget.querySelector('.delete-icon') as HTMLElement;
-                    if (deleteIcon) deleteIcon.style.display = 'inline';
-                  }}
-                  onMouseLeave={e => {
-                    const deleteIcon = e.currentTarget.querySelector('.delete-icon') as HTMLElement;
-                    if (deleteIcon) deleteIcon.style.display = 'none';
-                  }}
-              >
-                {file.filename}
-                <span onClick={(e) => {
-                  e.stopPropagation();
-                  deleteFile(file.filename);
-                }}
-                      style={{ position: 'absolute', right: '5px', cursor: 'pointer', color: 'red', display: 'none' }}
-                      className='delete-icon'
-                >❌</span>
-              </div>
-            ))}
-          </div>
+        <div className="opened-file">Opened file: {fileName}</div>
+        <div className="file-links">
+          {filteredFiles.map((file, index) => (
+            <div
+              key={index}
+              onClick={() => openFile(file)}
+              className="file-link"
+            >
+              {file.filename}
+              <span onClick={(e) => {
+                e.stopPropagation();
+                deleteFile(file.filename);
+              }}
+              className="delete-icon"
+              >❌</span>
+            </div>
+          ))}
         </div>
-      <div style={{ display: 'flex', flex: 1, maxWidth: '70%', overflowX: 'auto' }}>
+      </div>
+      <div className="editor-section">
         <Editor
           height="100%"
           language={fileName ? getLanguageFromFilename(fileName) : 'plaintext'}

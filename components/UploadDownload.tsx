@@ -120,7 +120,8 @@ const UploadDownload: React.FC<UploadDownloadProps> = ({ onFilesUpload, getFilte
                         padding: '10px',
                         textAlign: 'center',
                         border: 'none',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        borderRadius: '4px'
                     }}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = 'darkgray'}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = 'black'}
@@ -143,7 +144,8 @@ const UploadDownload: React.FC<UploadDownloadProps> = ({ onFilesUpload, getFilte
                         padding: '10px',
                         textAlign: 'center',
                         border: 'none',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        borderRadius: '4px'
                     }}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = 'darkgray'}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = 'black'}
@@ -160,7 +162,8 @@ const UploadDownload: React.FC<UploadDownloadProps> = ({ onFilesUpload, getFilte
                     color: 'white',
                     padding: '10px',
                     border: 'none',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    borderRadius: '4px'
                 }}
                 onMouseOver={e => e.currentTarget.style.backgroundColor = 'darkgray'}
                 onMouseOut={e => e.currentTarget.style.backgroundColor = 'black'}
