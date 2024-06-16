@@ -163,23 +163,39 @@ ${file.code}`).join('\n\n');
     setSelectedProject(project.id);
   };
 
+  const handleNewProject = () => {
+    onFilesUpdate([]);
+    setChatMessages([]);
+    setSelectedProject(null);
+    displayNotification('success', 'New project started!');
+  };
+
   return (
     <div className="chatbox-container">
       {notification && (
         <div className={`notification ${notification.type}`}>{notification.message}</div>
       )}
-      <button
-        onClick={handleSaveProject}
-        className="save-project-button"
-      >
-        💾
-      </button>
-      <button
-        onClick={handleClearCache}
-        className="clear-cache-button"
-      >
-        🗑️
-      </button>
+      <div>
+        <button
+          onClick={handleNewProject}
+          className="new-project-button"
+        >
+          ✨
+        </button>
+        <button
+          onClick={handleSaveProject}
+          className="save-project-button"
+        >
+          💾
+        </button>
+        <button
+          onClick={handleClearCache}
+          className="clear-cache-button"
+        >
+          🗑️
+        </button>
+      </div>
+
       <select
         value={selectedProject || ''}
         onChange={(e) => {

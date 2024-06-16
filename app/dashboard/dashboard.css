@@ -1,46 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 .dashboard-container {
-    padding: 20px;
-    background-color: #f5f5f5;
-    min-height: calc(100vh - 64px);
-  }
-  
-  .welcome-section {
-    background-color: #ffffff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  .dashboard-link {
-    display: inline-block;
-    margin: 10px 0;
-    padding: 10px 20px;
-    background-color: #000000;
-    color: #ffffff;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .dashboard-link:hover {
-    background-color: darkgray;
-  }
-  
-  .user-info {
-    font-weight: bold;
-  }
-  
-  .logout-button {
-    padding: 10px 20px;
-    background-color: #f44336;
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .logout-button:hover {
-    background-color: #d32f2f;
-  }
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.welcome-section {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: filter 0.3s ease;
+  text-align: center;
+}
+
+.dashboard-nav-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dashboard-nav-item {
+  margin: 10px 0;
+}
+
+.dashboard-nav-link {
+  display: block;
+  padding: 10px 20px;
+  background-color: #000000;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-nav-link:hover {
+  background-color: darkgray;
+}
+
+.user-info {
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.logout-button {
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.logout-button:hover {
+  background-color: #d32f2f;
+}
+
+.floating-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  text-align: center;
+}
+
+.floating-message p {
+  margin: 0 0 10px;
+}
+
+.floating-message a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.floating-message a:hover {
+  text-decoration: underline;
+}
+
+.floating-message button {
+  padding: 10px 20px;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.floating-message button:hover {
+  background-color: darkgray;
+}
+
+.blur-background {
+  filter: blur(5px);
+  transition: filter 0.3s ease;
+}
+
+/* Nav-bar styles */
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  padding: 10px 20px;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1.5rem;
+  color: #000;
+}
+
+.nav-list {
+  display: flex;
+  justify-content: flex-end;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.nav-item {
+  margin-left: 10px;
+}
+
+.nav-link, .nav-button {
+  display: inline-block;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 4px;
+  background-color: #000000;
+  color: #fff;
+  text-align: center;
+  line-height: normal;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.nav-button {
+  border: none;
+}
+
+.nav-link:hover, .nav-button:hover {
+  background-color: darkgray;
+}
