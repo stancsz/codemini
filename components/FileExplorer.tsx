@@ -66,14 +66,13 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
       if (typeof node === 'object' && node !== null) {
         return (
           <ul key={path} className={`folder level-${level}`}>
-            {Object.entries(node).map(([key, value]) => (
+            {Object.entries(node).map(([key, value]: [string, any]) => (
               <li
                 key={key}
                 className={`file-tree-item level-${level} ${currentFile === value.filename ? 'highlighted' : ''}`}
                 style={{ marginLeft: level * 20 }}
-                onContextMenu={(e) => handleContextMenu(e, value.filename)}
-              >
-                {typeof value === 'object' && value !== null && !(value.code) ? (
+                onContextMenu={(e) => handleContextMenu(e, typeof value === 'object' && value !== null && 'filename' in value ? value.filename : null)}>
+                {typeof value === 'object' && value !== null && !('code' in value) ? (
                   <>
                     <span onClick={() => handleFolderClick(`${path}/${key}`)} className="folder-name">
                       {folderState[`${path}/${key}`] ? '▼' : '▶'} {key}
