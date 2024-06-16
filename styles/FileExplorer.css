@@ -1,0 +1,41 @@
+.files-list {
+    position: relative;
+    font-family: Arial, sans-serif;
+  }
+  
+  .folder-name,
+  .file-name {
+    cursor: pointer;
+  }
+  
+  .filter-input {
+    margin-bottom: 10px;
+    padding: 5px;
+    width: calc(100% - 10px);
+  }
+  
+  .context-menu {
+    position: fixed;
+    display: none;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+  
+  .context-menu div {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .context-menu div:hover {
+    background-color: #eee;
+  }
+  
+  .context-menu.active {
+    display: block;
+  }
+  
+  .highlighted {
+    background-color: #d3d3d3;
+  }

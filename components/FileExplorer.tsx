@@ -1,17 +1,20 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import UploadDownload from './UploadDownload';
+import '../styles/FileExplorer.css';
 
 interface FileExplorerProps {
   files: { filename: string; code: string }[];
   filter: string;
   onFilterChange: (filter: string) => void;
   onFileOpen: (file: { filename: string; code: string }) => void;
-  onFileDelete: (filename: string) => void;
+  onFileAction: (filename: string, action: 'delete' | 'rename' | 'download') => void;
   onFilesUpload: (newFiles: { filename: string; code: string }[]) => void;
 }
 
-const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChange, onFileOpen, onFileDelete, onFilesUpload }) => {
+const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChange, onFileOpen, onFileAction, onFilesUpload }) => {
   const [folderState, setFolderState] = useState<{ [key: string]: boolean }>({});
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; filename: string | null }>({ visible: false, x: 0, y: 0, filename: null });
+  const [currentFile, setCurrentFile] = useState<string | null>(null);
 
   const getFilteredFiles = useCallback(() => {
     if (!filter) return files;
@@ -24,6 +27,18 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
       ...prevState,
       [folderPath]: !prevState[folderPath],
     }));
+  };
+
+  const handleContextMenu = (event: React.MouseEvent, filename: string) => {
+    event.preventDefault();
+    setContextMenu({ visible: true, x: event.clientX, y: event.clientY, filename });
+  };
+
+  const handleFileAction = (action: 'delete' | 'rename' | 'download') => {
+    if (contextMenu.filename) {
+      onFileAction(contextMenu.filename, action);
+      setContextMenu({ ...contextMenu, visible: false });
+    }
   };
 
   const renderFileTree = (files: { filename: string; code: string }[]) => {
@@ -52,7 +67,12 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
         return (
           <ul key={path} className={`folder level-${level}`}>
             {Object.entries(node).map(([key, value]) => (
-              <li key={key} className={`file-tree-item level-${level}`} style={{ marginLeft: level * 20 }}>
+              <li
+                key={key}
+                className={`file-tree-item level-${level} ${currentFile === value.filename ? 'highlighted' : ''}`}
+                style={{ marginLeft: level * 20 }}
+                onContextMenu={(e) => handleContextMenu(e, value.filename)}
+              >
                 {typeof value === 'object' && value !== null && !(value.code) ? (
                   <>
                     <span onClick={() => handleFolderClick(`${path}/${key}`)} className="folder-name">
@@ -61,15 +81,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
                     {folderState[`${path}/${key}`] && renderTree(value, `${path}/${key}`, level + 1)}
                   </>
                 ) : (
-                  <span onClick={() => onFileOpen(value)} className="file-name">
+                  <span onClick={() => { onFileOpen(value); setCurrentFile(value.filename); }} className="file-name">
                     {key}
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onFileDelete(value.filename);
-                      }}
-                      className="delete-icon"
-                    >❌</span>
                   </span>
                 )}
               </li>
@@ -83,8 +96,22 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
     return renderTree(fileTree);
   };
 
+  useEffect(() => {
+    const handleClick = () => {
+      setContextMenu({ ...contextMenu, visible: false });
+    };
+
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, [contextMenu]);
+
   return (
     <div className="files-list">
+      <div className={contextMenu.visible ? 'context-menu active' : 'context-menu'} style={{ top: contextMenu.y, left: contextMenu.x }}>
+        <div onClick={() => handleFileAction('delete')}>Delete</div>
+        <div onClick={() => handleFileAction('rename')}>Rename</div>
+        <div onClick={() => handleFileAction('download')}>Download</div>
+      </div>
       <UploadDownload onFilesUpload={onFilesUpload} getFilteredFiles={getFilteredFiles} />
       <input
         type="text"
