@@ -37,21 +37,24 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
     setFileName(file.filename);
   }, []);
 
-  const deleteFile = useCallback(async (filename: string) => {
-    const updatedFiles = files.filter(file => file.filename !== filename);
-    onFilesUpdate(updatedFiles);
-    setCode('');
-    setFileName(null);
+  const handleFileAction = useCallback(async (filename: string, action: 'delete' | 'rename' | 'download') => {
+    if (action === 'delete') {
+      const updatedFiles = files.filter(file => file.filename !== filename);
+      onFilesUpdate(updatedFiles);
+      setCode('');
+      setFileName(null);
 
-    // Firestore deletion
-    if (filename && filename.startsWith('project-') && user) { // Assuming project filenames start with 'project-'
-      const projectRef = doc(db, `user/${user.uid}/project/${filename}`);
-      try {
-        await deleteDoc(projectRef);
-      } catch (error) {
-        console.log('Error deleting file from Firestore: ', error);
+      // Firestore deletion
+      if (filename && filename.startsWith('project-') && user) { // Assuming project filenames start with 'project-'
+        const projectRef = doc(db, `user/${user.uid}/project/${filename}`);
+        try {
+          await deleteDoc(projectRef);
+        } catch (error) {
+          console.log('Error deleting file from Firestore: ', error);
+        }
       }
     }
+    // Handle other file actions like 'rename' and 'download' here.
   }, [files, onFilesUpdate, user]);
 
   const getLanguageFromFilename = (filename: string) => {
@@ -116,7 +119,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
         filter={filter}
         onFilterChange={onFilterChange}
         onFileOpen={openFile}
-        onFileDelete={deleteFile}
+        onFileAction={handleFileAction}
         onFilesUpload={handleFilesUpload}
       />
       <div className="editor-section">
