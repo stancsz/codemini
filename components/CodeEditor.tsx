@@ -53,8 +53,19 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ files, onFilesUpdate, filter, o
           console.log('Error deleting file from Firestore: ', error);
         }
       }
+    } else if (action === 'download') {
+      const file = files.find(file => file.filename === filename);
+      if (file) {
+        const element = document.createElement('a');
+        const fileBlob = new Blob([file.code], { type: 'text/plain' });
+        element.href = URL.createObjectURL(fileBlob);
+        element.download = filename.split('/').pop() || filename; // Remove folder path
+        document.body.appendChild(element); // Required for this to work in FireFox
+        element.click();
+        document.body.removeChild(element); // Clean up after download
+      }
     }
-    // Handle other file actions like 'rename' and 'download' here.
+    // Handle other file actions like 'rename' here.
   }, [files, onFilesUpdate, user]);
 
   const getLanguageFromFilename = (filename: string) => {
