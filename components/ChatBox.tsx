@@ -67,10 +67,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ files, onFilesUpdate }) => {
       return;
     }
 
-    const codeFiles = files.map(file => `# Filename: ${file.filename}
-# Code:
-${file.code}`).join('\n\n');
-    const fullMessage = `${message}\n\nFiles:\n${codeFiles}`;
+    const codeFiles = files.map(file => `{"filename": "${file.filename}", "code": "${file.code.replace(/"/g, '\"')}"}`).join(',');
+    const fullMessage = `{"message": "${message}", "files": [${codeFiles}]}`;
     const newChatMessages = [...chatMessages, { role: 'user', content: message }];
     setChatMessages(newChatMessages);
 

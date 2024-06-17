@@ -29,6 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      localStorage.clear();
       setUser(null); // Set user to null to re-render the navbar
       router.push("/login");
     } catch (error) {

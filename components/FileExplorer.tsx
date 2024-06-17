@@ -12,7 +12,6 @@ interface FileExplorerProps {
 }
 
 const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChange, onFileOpen, onFileAction, onFilesUpload }) => {
-  const [folderState, setFolderState] = useState<{ [key: string]: boolean }>({});
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; filename: string | null }>({ visible: false, x: 0, y: 0, filename: null });
   const [currentFile, setCurrentFile] = useState<string | null>(null);
 
@@ -21,13 +20,6 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
     const suffixes = filter.split(/[,;]/).map(suffix => suffix.trim());
     return files.filter(file => suffixes.some(suffix => file.filename.endsWith(suffix)));
   }, [filter, files]);
-
-  const handleFolderClick = (folderPath: string) => {
-    setFolderState(prevState => ({
-      ...prevState,
-      [folderPath]: !prevState[folderPath],
-    }));
-  };
 
   const handleContextMenu = (event: React.MouseEvent, filename: string) => {
     event.preventDefault();
@@ -41,58 +33,57 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
     }
   };
 
-  const renderFileTree = (files: { filename: string; code: string }[]) => {
+  const renderFileList = (files: { filename: string; code: string }[]) => {
     const fileTree: any = {};
 
     files.forEach(file => {
-      const pathParts = file.filename.split('/');
+      const parts = file.filename.split('/');
       let currentLevel = fileTree;
-
-      pathParts.forEach((part, index) => {
-        const isFile = index === pathParts.length - 1 && part.includes('.');
-
+      parts.forEach((part, index) => {
         if (!currentLevel[part]) {
-          if (isFile) {
-            currentLevel[part] = file;
-          } else {
-            currentLevel[part] = {};
-          }
+          currentLevel[part] = { __files: [] };
+        }
+        if (index === parts.length - 1) {
+          currentLevel[part].__files.push(file);
         }
         currentLevel = currentLevel[part];
       });
     });
 
-    const renderTree = (node: any, path: string = '', level: number = 0) => {
-      if (typeof node === 'object' && node !== null) {
-        return (
-          <ul key={path} className={`folder level-${level}`}>
-            {Object.entries(node).map(([key, value]: [string, any]) => (
-              <li
-                key={key}
-                className={`file-tree-item level-${level} ${currentFile === value.filename ? 'highlighted' : ''}`}
-                style={{ marginLeft: level * 20 }}
-                onContextMenu={(e) => handleContextMenu(e, typeof value === 'object' && value !== null && 'filename' in value ? value.filename : null)}>
-                {typeof value === 'object' && value !== null && !('code' in value) ? (
-                  <>
-                    <span onClick={() => handleFolderClick(`${path}/${key}`)} className="folder-name">
-                      {folderState[`${path}/${key}`] ? '▼' : '▶'} {key}
-                    </span>
-                    {folderState[`${path}/${key}`] && renderTree(value, `${path}/${key}`, level + 1)}
-                  </>
-                ) : (
-                  <span onClick={() => { onFileOpen(value); setCurrentFile(value.filename); }} className="file-name">
-                    {key}
-                  </span>
-                )}
-              </li>
+    const renderFolder = (folder: any, path: string, indent: number) => {
+      const indentStyle = { marginLeft: `${indent * 5}px` };
+      return (
+        <>
+          {Object.entries(folder).map(([name, content]: [string, any]) => {
+            if (name === '__files') return null;
+            return (
+              <div key={path + name} className="folder-container" style={indentStyle}>
+                <div className="folder-name">📁{name}</div>
+                {renderFolder(content, path + name + '/', indent + 1)}
+              </div>
+            );
+          })}
+          {folder.__files &&
+            folder.__files.map((file: any) => (
+              <div
+                key={file.filename}
+                className={`file-item ${currentFile === file.filename ? 'highlighted' : ''}`}
+                style={indentStyle}
+                onContextMenu={(e) => handleContextMenu(e, file.filename)}
+                onClick={() => { onFileOpen(file); setCurrentFile(file.filename); }}
+              >
+                📄 {file.filename.split('/').pop()}
+              </div>
             ))}
-          </ul>
-        );
-      }
-      return null;
+        </>
+      );
     };
 
-    return renderTree(fileTree);
+    return (
+      <div className="file-list">
+        {renderFolder(fileTree, '', 0)}
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -119,8 +110,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
         onChange={(e) => onFilterChange(e.target.value)}
         className="filter-input"
       />
-      <div className="file-tree">
-        {renderFileTree(getFilteredFiles())}
+      <div className="file-list-container">
+        {renderFileList(getFilteredFiles())}
       </div>
     </div>
   );
