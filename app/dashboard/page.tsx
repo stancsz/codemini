@@ -31,15 +31,6 @@ const DashboardPage = () => {
     return () => unsubscribe();
   }, [router]);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push("/login");
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
-  };
-
   return (
     <div className="dashboard-container">
       {showMessage && (
@@ -66,7 +57,6 @@ const DashboardPage = () => {
           </li>
         </ul>
         {user && <p className="user-info">Logged in as {user.email}</p>}
-        <button onClick={handleLogout} className="logout-button">Logout</button>
       </div>
     </div>
   );
