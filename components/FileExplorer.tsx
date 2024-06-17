@@ -34,21 +34,55 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, filter, onFilterChan
   };
 
   const renderFileList = (files: { filename: string; code: string }[]) => {
-    const sortedFiles = files.sort((a, b) => a.filename.localeCompare(b.filename));
+    const fileTree: any = {};
+
+    files.forEach(file => {
+      const parts = file.filename.split('/');
+      let currentLevel = fileTree;
+      parts.forEach((part, index) => {
+        if (!currentLevel[part]) {
+          currentLevel[part] = { __files: [] };
+        }
+        if (index === parts.length - 1) {
+          currentLevel[part].__files.push(file);
+        }
+        currentLevel = currentLevel[part];
+      });
+    });
+
+    const renderFolder = (folder: any, path: string, indent: number) => {
+      const indentStyle = { marginLeft: `${indent * 5}px` };
+      return (
+        <>
+          {Object.entries(folder).map(([name, content]: [string, any]) => {
+            if (name === '__files') return null;
+            return (
+              <div key={path + name} className="folder-container" style={indentStyle}>
+                <div className="folder-name">📁{name}</div>
+                {renderFolder(content, path + name + '/', indent + 1)}
+              </div>
+            );
+          })}
+          {folder.__files &&
+            folder.__files.map((file: any) => (
+              <div
+                key={file.filename}
+                className={`file-item ${currentFile === file.filename ? 'highlighted' : ''}`}
+                style={indentStyle}
+                onContextMenu={(e) => handleContextMenu(e, file.filename)}
+                onClick={() => { onFileOpen(file); setCurrentFile(file.filename); }}
+              >
+                📄 {file.filename.split('/').pop()}
+              </div>
+            ))}
+        </>
+      );
+    };
 
     return (
-      <ul className="file-list">
-        {sortedFiles.map(file => (
-          <li
-            key={file.filename}
-            className={`file-item ${currentFile === file.filename ? 'highlighted' : ''}`}
-            onContextMenu={(e) => handleContextMenu(e, file.filename)}
-            onClick={() => { onFileOpen(file); setCurrentFile(file.filename); }}
-          >
-            {file.filename}
-          </li>
-        ))}
-      </ul>
+      <div className="file-list">
+        {renderFolder(fileTree, '', 0)}
+      </div>
     );
   };
 
