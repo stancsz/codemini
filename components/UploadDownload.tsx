@@ -18,6 +18,9 @@ const UploadDownload: React.FC<UploadDownloadProps> = ({ onFilesUpload, getFilte
             const allFiles: { filename: any; code: string; }[] = [];
 
             for (const fileObj of filesArray) {
+                if (fileObj.file.size > 20480) {
+                    continue; // Skip file upload if size exceeds 20KB
+                }
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const content = e.target?.result as string;
@@ -44,6 +47,9 @@ const UploadDownload: React.FC<UploadDownloadProps> = ({ onFilesUpload, getFilte
             const allFiles: { filename: any; code: string; }[] = [];
 
             for (const fileObj of filesArray) {
+                if (fileObj.file.size > 20480) {
+                    continue; // Skip file upload if size exceeds 20KB
+                }
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const content = e.target?.result as string;
